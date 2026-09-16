@@ -185,7 +185,7 @@
         <option value="">Todos os combustíveis</option>
       </select>
     </div>
-    <p class="dica">Clique no cabeçalho de uma coluna para ordenar.</p>
+    <p class="dica">30 postos analisados ate o momento.</p>
 
     <div class="contagem" id="contagem"></div>
 
@@ -319,7 +319,7 @@ function atualizarSetas() {
   });
 }
 
-function mostrarTabela() {
+function atualizarTabela() {
   const termo = busca.value.trim().toLowerCase();
   const combustivelEscolhido = filtroCombustivel.value;
 
@@ -360,11 +360,11 @@ function mostrarTabela() {
     return;
   }
 
-  const contagemPorProduto = {};
+  const totalPorProduto = {};
 
   filtrados.forEach(registro => {
-    contagemPorProduto[registro.produto] =
-      (contagemPorProduto[registro.produto] || 0) + 1;
+    totalPorProduto[registro.produto] =
+      (totalPorProduto[registro.produto] || 0) + 1;
   });
 
   let html = '';
@@ -374,7 +374,7 @@ function mostrarTabela() {
     if (separarCombustiveis && registro.produto !== grupoAtual) {
       grupoAtual = registro.produto;
 
-      const quantidade = contagemPorProduto[grupoAtual];
+      const quantidade = totalPorProduto[grupoAtual];
       const nome = nomeProduto(grupoAtual);
 
       html += '<tr class="grupo-cabecalho">' +
@@ -410,14 +410,14 @@ cabecalhos.forEach(th => {
       direcao = 1;
     }
 
-    mostrarTabela();
+    atualizarTabela();
   });
 });
 
-busca.addEventListener('input', mostrarTabela);
-filtroCombustivel.addEventListener('change', mostrarTabela);
+busca.addEventListener('input', atualizarTabela);
+filtroCombustivel.addEventListener('change', atualizarTabela);
 
-mostrarTabela();
+atualizarTabela();
 
 const CORES_COMBUSTIVEL = {
   'GASOLINA': '#2f6f97',
@@ -428,8 +428,7 @@ const CORES_COMBUSTIVEL = {
   'GNV': '#7a6a52'
 };
 
-// monta { labels, datasets } no formato que o Chart.js espera,
-// juntando as datas de todos os combustíveis num único eixo X
+
 function montarDadosDoGrafico(dadosPorProduto) {
   const produtos = Object.keys(dadosPorProduto).sort();
 
@@ -459,12 +458,12 @@ function montarDadosDoGrafico(dadosPorProduto) {
   return { labels, datasets };
 }
 
-function formatarDataTick(dataIso) {
+function formatarEixoX(dataIso) {
   const [ano, mes, dia] = dataIso.split('-');
   return dia + '/' + mes;
 }
 
-const opcoesDoGrafico = {
+const configGrafico = {
   responsive: true,
   maintainAspectRatio: false,
   interaction: { mode: 'nearest', intersect: false },
@@ -474,7 +473,7 @@ const opcoesDoGrafico = {
         autoSkip: true,
         maxRotation: 0,
         callback: function (valor) {
-          return formatarDataTick(this.getLabelForValue(valor));
+          return formatarEixoX(this.getLabelForValue(valor));
         }
       },
       grid: { display: false }
@@ -514,7 +513,7 @@ function renderGraficoMedias() {
   graficoMedias = new Chart(document.getElementById('graficoMedias'), {
     type: 'line',
     data: { labels, datasets },
-    options: opcoesDoGrafico
+    options: configGrafico
   });
 }
 
@@ -547,7 +546,7 @@ function renderGraficoPosto() {
   graficoPosto = new Chart(document.getElementById('graficoPosto'), {
     type: 'line',
     data: { labels, datasets },
-    options: opcoesDoGrafico
+    options: configGrafico
   });
 }
 
