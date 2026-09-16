@@ -428,14 +428,10 @@ const CORES_COMBUSTIVEL = {
   'GNV': '#7a6a52'
 };
 
-function nomesDeProdutos(dadosPorProduto) {
-  return Object.keys(dadosPorProduto).sort();
-}
-
 // monta { labels, datasets } no formato que o Chart.js espera,
 // juntando as datas de todos os combustíveis num único eixo X
 function montarDadosDoGrafico(dadosPorProduto) {
-  const produtos = nomesDeProdutos(dadosPorProduto);
+  const produtos = Object.keys(dadosPorProduto).sort();
 
   const todasAsDatas = new Set();
   produtos.forEach(produto => {
@@ -455,7 +451,6 @@ function montarDadosDoGrafico(dadosPorProduto) {
       borderColor: CORES_COMBUSTIVEL[produto] || '#888',
       backgroundColor: CORES_COMBUSTIVEL[produto] || '#888',
       spanGaps: true,
-      tension: 0.15,
       borderWidth: 2,
       pointRadius: 2
     };
