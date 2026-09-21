@@ -3,192 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Painel com os preços de combustíveis coletados em postos de Vila Velha/ES: tabela pesquisável, média por combustível e histórico por posto.">
 <title>Preços de Combustíveis</title>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    padding: 24px;
-    font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
-    color: #222;
-    background: #fff;
-  }
-  .container {
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-  h1 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin: 0 0 4px;
-  }
-  .subtitulo {
-    color: #666;
-    font-size: 0.85rem;
-    margin: 0 0 20px;
-  }
-  .controles {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  .controles input, .controles select {
-    padding: 6px 8px;
-    border: 1px solid #ccc;
-    font-size: 0.9rem;
-    font-family: inherit;
-  }
-  .controles input {
-    flex: 1;
-  }
-  .dica {
-    color: #999;
-    font-size: 0.75rem;
-    margin: 0 0 10px;
-  }
-  .contagem {
-    color: #666;
-    font-size: 0.8rem;
-    margin-bottom: 8px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  thead th {
-    text-align: left;
-    padding: 8px;
-    border-bottom: 2px solid #222;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: #444;
-    position: sticky;
-    top: 0;
-    background: #fff;
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-  }
-  thead th:hover {
-    color: #000;
-  }
-  thead th .seta {
-    color: #999;
-    font-size: 0.75em;
-    margin-left: 3px;
-  }
-  thead th.ativo .seta {
-    color: #222;
-  }
-  tbody td {
-    padding: 7px 8px;
-    border-bottom: 1px solid #e0e0e0;
-    vertical-align: top;
-  }
-  tbody tr:hover {
-    background: #f7f7f7;
-  }
-  .preco {
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .data {
-    color: #888;
-    font-size: 0.8rem;
-    white-space: nowrap;
-  }
-  .sem-resultado {
-    text-align: center;
-    color: #888;
-    padding: 24px 0;
-  }
-  .grupo-cabecalho td {
-    background: #f0f0f0;
-    font-weight: 600;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: #333;
-    padding: 6px 8px;
-    border-bottom: 1px solid #ddd;
-    border-top: 1px solid #ddd;
-  }
-  .grupo-cabecalho .qtd {
-    font-weight: 400;
-    text-transform: none;
-    color: #888;
-    letter-spacing: normal;
-    margin-left: 6px;
-  }
-  th.col-preco, td.col-preco { text-align: right; }
-
-  .grafico-wrap {
-    border: 1px solid #e0e0e0;
-    padding: 16px;
-    height: 320px;
-  }
-  .grafico-wrap canvas {
-    max-height: 100%;
-  }
-
-  .abas {
-    display: flex;
-    gap: 4px;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 18px;
-  }
-  .abas button {
-    font-family: inherit;
-    font-size: 0.9rem;
-    background: none;
-    border: none;
-    padding: 10px 4px;
-    margin-right: 20px;
-    color: #888;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-  }
-  .abas button:hover {
-    color: #333;
-  }
-  .abas button.ativa {
-    color: #111;
-    font-weight: 600;
-    border-bottom-color: #111;
-  }
-  .painel {
-    display: none;
-  }
-  .painel.ativa {
-    display: block;
-  }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
   <h1>Preços de Combustíveis</h1>
-  <p class="subtitulo">Vila Velha/ES</p>
+  <p class="subtitulo" id="periodo">Vila Velha/ES</p>
 
-  <div class="abas">
-    <button class="ativa" data-painel="painelTabela">Tabela</button>
-    <button data-painel="painelMedias">Preço médio por combustível</button>
-    <button data-painel="painelPosto">Preço por posto</button>
+  <div class="abas" role="tablist">
+    <button type="button" class="ativa" role="tab" aria-selected="true" data-painel="painelTabela">Tabela</button>
+    <button type="button" role="tab" aria-selected="false" data-painel="painelMedias">Preço médio por combustível</button>
+    <button type="button" role="tab" aria-selected="false" data-painel="painelPosto">Preço por posto</button>
   </div>
 
   <div class="painel ativa" id="painelTabela">
     <div class="controles">
+      <label for="busca" class="rotulo-oculto">Buscar posto, rua ou bairro</label>
       <input type="text" id="busca" placeholder="Buscar posto, rua ou bairro...">
+      <label for="filtroCombustivel" class="rotulo-oculto">Filtrar por combustível</label>
       <select id="filtroCombustivel">
         <option value="">Todos os combustíveis</option>
       </select>
     </div>
-    <p class="dica">30 postos analisados ate o momento.</p>
+    <p class="dica" id="dicaPostos"></p>
+    <p class="dica">Cada linha mostra o último preço coletado naquele posto para o combustível.</p>
 
     <div class="contagem" id="contagem"></div>
 
+    <div class="tabela-wrap">
     <table>
       <thead>
         <tr>
@@ -196,11 +41,12 @@
           <th data-campo="bairro">Endereço <span class="seta"></span></th>
           <th data-campo="produto">Combustível <span class="seta"></span></th>
           <th class="col-preco" data-campo="preco">Preço <span class="seta"></span></th>
-          <th data-campo="dataOrd">Coleta <span class="seta"></span></th>
+          <th data-campo="data">Coleta <span class="seta"></span></th>
         </tr>
       </thead>
       <tbody id="corpo"></tbody>
     </table>
+    </div>
   </div>
 
   <div class="painel" id="painelMedias">
@@ -208,47 +54,136 @@
     <div class="grafico-wrap">
       <canvas id="graficoMedias"></canvas>
     </div>
+    <p class="nota">Cada ponto é a média dos postos coletados naquela data. A quantidade de postos varia de uma data para outra (aparece ao passar o cursor sobre o ponto), então pequenas oscilações podem refletir quais postos foram visitados, e não uma mudança real de preço.</p>
   </div>
 
   <div class="painel" id="painelPosto">
     <p class="subtitulo">Escolha um posto para ver o histórico de cada combustível</p>
     <div class="controles">
+      <label for="seletorPosto" class="rotulo-oculto">Escolher posto</label>
       <select id="seletorPosto"></select>
     </div>
     <div class="grafico-wrap">
       <canvas id="graficoPosto"></canvas>
     </div>
   </div>
+  <footer class="rodape">
+    <p><strong>Sobre o projeto.</strong> Projeto de extensão da disciplina Arquitetura de Dados Relacionais I, Universidade Vila Velha (UVV). Autor: Pedro Henrique Ribeiro Freire da Silva.</p>
+    <p id="rodapeDados"></p>
+  </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-const POSTOS_DATA = [{"nome": "A.B.C. AUTO SERVICOS LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA ROBERT KENNEDY", "numero": "21", "bairro": "SAO TORQUATO", "combustiveis": [{"produto": "DIESEL", "preco": 6.89, "data": "22/06/2026"}, {"produto": "DIESEL S10", "preco": 6.89, "data": "22/06/2026"}, {"produto": "ETANOL", "preco": 4.89, "data": "25/05/2026"}, {"produto": "GASOLINA", "preco": 6.67, "data": "22/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 7.07, "data": "22/06/2026"}]}, {"nome": "ARARA AZUL REDE DE POSTOS LTDA", "municipio": "VILA VELHA", "rua": "RODOVIA RODOVIA DO SOL", "numero": "530", "bairro": "PRAIA DE ITAPARICA", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.74, "data": "29/06/2026"}, {"produto": "ETANOL", "preco": 4.59, "data": "29/06/2026"}, {"produto": "GASOLINA", "preco": 6.67, "data": "29/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.92, "data": "29/06/2026"}]}, {"nome": "AUTO POSTO ARACAS LTDA", "municipio": "VILA VELHA", "rua": "RODOVIA DARLY SANTOS", "numero": "S/N", "bairro": "POLO EMPRESARIAL NOVO MEXICO", "combustiveis": [{"produto": "DIESEL", "preco": 6.69, "data": "25/06/2026"}, {"produto": "DIESEL S10", "preco": 6.79, "data": "25/06/2026"}, {"produto": "ETANOL", "preco": 4.69, "data": "25/06/2026"}, {"produto": "GASOLINA", "preco": 6.69, "data": "25/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.89, "data": "25/06/2026"}, {"produto": "GNV", "preco": 4.29, "data": "25/06/2026"}]}, {"nome": "AUTO POSTO BOULEVARD LTDA", "municipio": "VILA VELHA", "rua": "RODOVIA DO SOL", "numero": "S/N", "bairro": "PRAIA DE ITAPARICA", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.74, "data": "29/06/2026"}, {"produto": "ETANOL", "preco": 4.54, "data": "29/06/2026"}, {"produto": "GASOLINA", "preco": 6.67, "data": "29/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 7.07, "data": "29/06/2026"}]}, {"nome": "AUTO POSTO DE COMBUSTIVEL RTT LTDA", "municipio": "VILA VELHA", "rua": "RUA MOEMA", "numero": "38", "bairro": "DIVINO ESPIRITO SANTO", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.99, "data": "30/06/2026"}, {"produto": "ETANOL", "preco": 4.99, "data": "30/06/2026"}, {"produto": "GASOLINA", "preco": 6.54, "data": "30/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.84, "data": "30/06/2026"}]}, {"nome": "AUTO POSTO GASCROMA COMERCIO DE COMBUSTIVEIS, LUBRIFICANTES E SERVICOS LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA JERONIMO MONTEIRO", "numero": "840", "bairro": "JABURUNA", "combustiveis": [{"produto": "DIESEL", "preco": 6.89, "data": "07/04/2026"}, {"produto": "GASOLINA", "preco": 6.69, "data": "29/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.89, "data": "29/06/2026"}]}, {"nome": "AUTO POSTO ILHA DAS GARCAS LTDA", "municipio": "VILA VELHA", "rua": "RUA MARIA DE OLIVEIRA MARES GUIA", "numero": "40", "bairro": "PRAIA DAS GAIVOTAS", "combustiveis": [{"produto": "GASOLINA", "preco": 6.49, "data": "29/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.89, "data": "29/06/2026"}]}, {"nome": "AUTO POSTO R M LTDA", "municipio": "VILA VELHA", "rua": "RODOVIA DO SOL", "numero": "3701", "bairro": "PRAIA DE ITAPARICA", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.74, "data": "29/06/2026"}, {"produto": "ETANOL", "preco": 4.54, "data": "29/06/2026"}, {"produto": "GASOLINA", "preco": 6.67, "data": "29/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 7.07, "data": "29/06/2026"}]}, {"nome": "AUTO POSTO SUCESSO LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA JOAO FRANCISCO GONCALVES", "numero": "746", "bairro": "COBILANDIA", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.86, "data": "23/06/2026"}, {"produto": "ETANOL", "preco": 4.45, "data": "23/06/2026"}, {"produto": "GASOLINA", "preco": 6.55, "data": "23/06/2026"}]}, {"nome": "AUTO POSTO VALE ENCANTADO LTDA.", "municipio": "VILA VELHA", "rua": "RUA SOBREIRO", "numero": "395", "bairro": "RIO MARINHO", "combustiveis": [{"produto": "DIESEL", "preco": 6.59, "data": "23/06/2026"}, {"produto": "DIESEL S10", "preco": 6.89, "data": "23/06/2026"}, {"produto": "ETANOL", "preco": 4.59, "data": "23/06/2026"}, {"produto": "GASOLINA", "preco": 6.69, "data": "23/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.89, "data": "23/06/2026"}]}, {"nome": "AUTO POSTO VILA VELHA LTDA", "municipio": "VILA VELHA", "rua": "RODOVIA CARLOS LINDEMBERG", "numero": "101", "bairro": "CENTRO", "combustiveis": [{"produto": "DIESEL S10", "preco": 7.09, "data": "12/05/2026"}, {"produto": "ETANOL", "preco": 4.99, "data": "12/05/2026"}, {"produto": "GASOLINA", "preco": 6.43, "data": "12/05/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.65, "data": "12/05/2026"}]}, {"nome": "AUTOPOSTO DE COMBUSTIVEIS MASP SANTA INES LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA CARLOS LINDENBERG", "numero": "3241", "bairro": "SANTA INES", "combustiveis": [{"produto": "ETANOL", "preco": 4.99, "data": "15/04/2026"}, {"produto": "GASOLINA", "preco": 6.45, "data": "15/04/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.65, "data": "15/04/2026"}]}, {"nome": "CARREFOUR COMERCIO E INDUSTRIA LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA DARLY SANTOS", "numero": "4393", "bairro": "NOSSA SENHORA DA PENHA", "combustiveis": [{"produto": "ETANOL", "preco": 4.77, "data": "13/04/2026"}, {"produto": "GASOLINA", "preco": 6.57, "data": "13/04/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.59, "data": "13/04/2026"}]}, {"nome": "COMERCIO DE COMBUSTIVEIS COQUEIRAL DE ITAPARICA LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA SANTA LEOPOLDINA", "numero": "635", "bairro": "COQUEIRAL DE ITAPARICA", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.99, "data": "18/05/2026"}, {"produto": "ETANOL", "preco": 4.65, "data": "18/05/2026"}, {"produto": "GASOLINA", "preco": 6.42, "data": "18/05/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.45, "data": "18/05/2026"}]}, {"nome": "COMERCIO DE COMBUSTIVEIS LINDENBERG LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA CARLOS LINDENBERG", "numero": "5718", "bairro": "SANTA INES", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.59, "data": "30/06/2026"}, {"produto": "ETANOL", "preco": 4.45, "data": "30/06/2026"}, {"produto": "GASOLINA", "preco": 6.49, "data": "30/06/2026"}]}, {"nome": "DERIVADOS PETROLEO SANTA INES LTDA", "municipio": "VILA VELHA", "rua": "RODOVIA CARLOS LINDEMBERG", "numero": "1801", "bairro": "SANTA INES", "combustiveis": [{"produto": "ETANOL", "preco": 4.62, "data": "13/05/2026"}, {"produto": "GASOLINA", "preco": 6.37, "data": "13/05/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.57, "data": "13/05/2026"}]}, {"nome": "FRED ROSALEM HELIODORO", "municipio": "VILA VELHA", "rua": "RUA JOSE ROSALEM", "numero": "1", "bairro": "SANTA INES", "combustiveis": [{"produto": "DIESEL", "preco": 6.79, "data": "13/04/2026"}, {"produto": "DIESEL S10", "preco": 6.98, "data": "13/04/2026"}, {"produto": "ETANOL", "preco": 4.98, "data": "13/04/2026"}, {"produto": "GASOLINA", "preco": 6.47, "data": "13/04/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.47, "data": "13/04/2026"}]}, {"nome": "ITAPARICA PETROLEO E COMERCIO LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA CARLOS LINDENBERG", "numero": "1395", "bairro": "COBI DE CIMA", "combustiveis": [{"produto": "DIESEL", "preco": 6.79, "data": "29/06/2026"}, {"produto": "ETANOL", "preco": 4.59, "data": "29/06/2026"}, {"produto": "GASOLINA", "preco": 6.56, "data": "29/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.96, "data": "29/06/2026"}]}, {"nome": "J C RODRIGUES NETO E FILHOS LTDA", "municipio": "VILA VELHA", "rua": "RUA CEARA", "numero": "S/N", "bairro": "PRAIA DA COSTA", "combustiveis": [{"produto": "ETANOL", "preco": 4.89, "data": "16/06/2026"}, {"produto": "GASOLINA", "preco": 6.58, "data": "16/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.58, "data": "16/06/2026"}]}, {"nome": "POSTO ARIBIRI DO GAS LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA CARLOS LINDEMBERG", "numero": "1944", "bairro": "SANTA INEZ", "combustiveis": [{"produto": "GASOLINA", "preco": 6.49, "data": "30/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.69, "data": "30/06/2026"}, {"produto": "GNV", "preco": 4.29, "data": "30/06/2026"}]}, {"nome": "POSTO CAPUABA LTDA", "municipio": "VILA VELHA", "rua": "ESTRADA CAPUABA", "numero": "21", "bairro": "ATAIDE", "combustiveis": [{"produto": "DIESEL", "preco": 6.79, "data": "18/05/2026"}, {"produto": "DIESEL S10", "preco": 6.89, "data": "18/05/2026"}, {"produto": "ETANOL", "preco": 4.99, "data": "18/05/2026"}, {"produto": "GASOLINA", "preco": 6.49, "data": "18/05/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.79, "data": "18/05/2026"}]}, {"nome": "POSTO CHAMPAGNAT LTDA", "municipio": "VILA VELHA", "rua": "RUA HUGO MUSSO", "numero": "550", "bairro": "PRAIA DA COSTA", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.99, "data": "30/06/2026"}, {"produto": "ETANOL", "preco": 4.99, "data": "30/06/2026"}, {"produto": "GASOLINA", "preco": 6.69, "data": "30/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.89, "data": "30/06/2026"}]}, {"nome": "POSTO CRISTOVAO COLOMBO LTDA", "municipio": "VILA VELHA", "rua": "RUA CRISTOVAO COLOMBO", "numero": "582", "bairro": "CRISTOVAO COLOMBO", "combustiveis": [{"produto": "DIESEL S10", "preco": 5.99, "data": "07/01/2026"}, {"produto": "GASOLINA", "preco": 6.59, "data": "30/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.86, "data": "30/06/2026"}]}, {"nome": "POSTO ITAPOA LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA FRANCELINA SETUBAL", "numero": "333", "bairro": "ITAPOAN", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.78, "data": "22/06/2026"}, {"produto": "ETANOL", "preco": 4.55, "data": "22/06/2026"}, {"produto": "GASOLINA", "preco": 6.67, "data": "22/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.87, "data": "22/06/2026"}]}, {"nome": "POSTO MARCELA LTDA", "municipio": "VILA VELHA", "rua": "RUA DO PESSEGUEIRO", "numero": "S/N", "bairro": "DIVINO ESPÍRITO SANTO", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.79, "data": "30/06/2026"}, {"produto": "ETANOL", "preco": 4.99, "data": "13/03/2026"}, {"produto": "GASOLINA", "preco": 6.56, "data": "30/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.76, "data": "30/06/2026"}]}, {"nome": "POSTO PERIM LTDA", "municipio": "VILA VELHA", "rua": "RUA SANTA LEOPOLDINA", "numero": "1650", "bairro": "ITAPARICA", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.99, "data": "29/06/2026"}, {"produto": "ETANOL", "preco": 4.89, "data": "29/06/2026"}, {"produto": "GASOLINA", "preco": 6.69, "data": "29/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.89, "data": "29/06/2026"}]}, {"nome": "POSTO RIO MARINHO COMERCIO DE DERIVADOS DE PETROLEO EIRELI - EPP", "municipio": "VILA VELHA", "rua": "AVENIDA RIO MARINHO", "numero": "S/N", "bairro": "RIO MARINHO", "combustiveis": [{"produto": "DIESEL", "preco": 6.47, "data": "23/06/2026"}, {"produto": "DIESEL S10", "preco": 6.65, "data": "23/06/2026"}, {"produto": "ETANOL", "preco": 4.55, "data": "23/06/2026"}, {"produto": "GASOLINA", "preco": 6.49, "data": "23/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.79, "data": "23/06/2026"}]}, {"nome": "POSTO SATURNINO RANGEL MAURO LTDA", "municipio": "VILA VELHA", "rua": "RUA PROFESSOR AUGUSTO RUSCH", "numero": "121", "bairro": "PRAIA DE ITAPARICA", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.97, "data": "08/06/2026"}, {"produto": "ETANOL", "preco": 4.97, "data": "08/06/2026"}, {"produto": "GASOLINA", "preco": 6.39, "data": "08/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.69, "data": "08/06/2026"}]}, {"nome": "POSTO TRES COQUEIROS LTDA", "municipio": "VILA VELHA", "rua": "RODOVIA CARLOS LINDEMBERG", "numero": "SN", "bairro": "ALVORADA", "combustiveis": [{"produto": "DIESEL", "preco": 6.66, "data": "09/06/2026"}, {"produto": "DIESEL S10", "preco": 6.78, "data": "09/06/2026"}, {"produto": "ETANOL", "preco": 4.52, "data": "09/06/2026"}, {"produto": "GASOLINA", "preco": 6.32, "data": "09/06/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.52, "data": "09/06/2026"}]}, {"nome": "RGM 2 COMERCIO DE PETROLEO LTDA", "municipio": "VILA VELHA", "rua": "AVENIDA CARLOS LINDENBERG", "numero": "2423", "bairro": "IBES", "combustiveis": [{"produto": "DIESEL S10", "preco": 6.99, "data": "13/05/2026"}, {"produto": "ETANOL", "preco": 4.99, "data": "13/05/2026"}, {"produto": "GASOLINA", "preco": 6.45, "data": "13/05/2026"}, {"produto": "GASOLINA ADITIVADA", "preco": 6.75, "data": "13/05/2026"}]}];
-const MEDIAS_COMBUSTIVEL = {"DIESEL": [{"data": "2026-01-06", "preco": 6.09}, {"data": "2026-01-07", "preco": 6.19}, {"data": "2026-01-12", "preco": 6.015}, {"data": "2026-01-19", "preco": 6.005}, {"data": "2026-01-20", "preco": 6.09}, {"data": "2026-01-26", "preco": 5.89}, {"data": "2026-01-27", "preco": 6.1433}, {"data": "2026-01-28", "preco": 6.09}, {"data": "2026-02-02", "preco": 6.09}, {"data": "2026-02-03", "preco": 6.19}, {"data": "2026-02-05", "preco": 6.12}, {"data": "2026-02-09", "preco": 5.8667}, {"data": "2026-02-10", "preco": 6.14}, {"data": "2026-02-16", "preco": 5.92}, {"data": "2026-02-17", "preco": 5.99}, {"data": "2026-02-20", "preco": 6.03}, {"data": "2026-02-23", "preco": 5.99}, {"data": "2026-02-25", "preco": 6.03}, {"data": "2026-02-26", "preco": 6.19}, {"data": "2026-03-02", "preco": 5.96}, {"data": "2026-03-05", "preco": 5.89}, {"data": "2026-03-09", "preco": 6.015}, {"data": "2026-03-11", "preco": 6.79}, {"data": "2026-03-12", "preco": 6.59}, {"data": "2026-03-16", "preco": 6.39}, {"data": "2026-03-17", "preco": 6.5833}, {"data": "2026-03-23", "preco": 6.79}, {"data": "2026-03-25", "preco": 6.69}, {"data": "2026-03-30", "preco": 6.815}, {"data": "2026-04-01", "preco": 6.49}, {"data": "2026-04-06", "preco": 6.69}, {"data": "2026-04-07", "preco": 6.89}, {"data": "2026-04-08", "preco": 6.69}, {"data": "2026-04-13", "preco": 6.7567}, {"data": "2026-04-20", "preco": 6.815}, {"data": "2026-04-27", "preco": 6.89}, {"data": "2026-05-04", "preco": 6.8567}, {"data": "2026-05-11", "preco": 6.8567}, {"data": "2026-05-18", "preco": 6.74}, {"data": "2026-05-19", "preco": 6.775}, {"data": "2026-05-25", "preco": 6.89}, {"data": "2026-05-27", "preco": 6.7233}, {"data": "2026-06-01", "preco": 6.69}, {"data": "2026-06-09", "preco": 6.78}, {"data": "2026-06-11", "preco": 6.69}, {"data": "2026-06-16", "preco": 6.835}, {"data": "2026-06-22", "preco": 6.84}, {"data": "2026-06-23", "preco": 6.53}, {"data": "2026-06-25", "preco": 6.69}, {"data": "2026-06-29", "preco": 6.79}], "DIESEL S10": [{"data": "2026-01-06", "preco": 6.04}, {"data": "2026-01-07", "preco": 6.0425}, {"data": "2026-01-08", "preco": 5.99}, {"data": "2026-01-12", "preco": 6.04}, {"data": "2026-01-14", "preco": 6.0333}, {"data": "2026-01-19", "preco": 6.03}, {"data": "2026-01-20", "preco": 6.09}, {"data": "2026-01-22", "preco": 6.19}, {"data": "2026-01-23", "preco": 5.99}, {"data": "2026-01-26", "preco": 6.09}, {"data": "2026-01-27", "preco": 6.11}, {"data": "2026-01-28", "preco": 6.005}, {"data": "2026-02-02", "preco": 6.11}, {"data": "2026-02-03", "preco": 6.1133}, {"data": "2026-02-04", "preco": 5.9433}, {"data": "2026-02-05", "preco": 6.09}, {"data": "2026-02-09", "preco": 5.9986}, {"data": "2026-02-10", "preco": 6.165}, {"data": "2026-02-16", "preco": 6.0875}, {"data": "2026-02-17", "preco": 6.14}, {"data": "2026-02-18", "preco": 6.0333}, {"data": "2026-02-19", "preco": 5.99}, {"data": "2026-02-20", "preco": 6.05}, {"data": "2026-02-23", "preco": 6.0575}, {"data": "2026-02-24", "preco": 5.98}, {"data": "2026-02-25", "preco": 6.0167}, {"data": "2026-02-26", "preco": 5.85}, {"data": "2026-03-02", "preco": 6.006}, {"data": "2026-03-03", "preco": 6.01}, {"data": "2026-03-05", "preco": 6.04}, {"data": "2026-03-09", "preco": 6.11}, {"data": "2026-03-11", "preco": 6.39}, {"data": "2026-03-12", "preco": 6.48}, {"data": "2026-03-13", "preco": 6.39}, {"data": "2026-03-16", "preco": 6.39}, {"data": "2026-03-17", "preco": 6.6633}, {"data": "2026-03-18", "preco": 6.64}, {"data": "2026-03-23", "preco": 6.8871}, {"data": "2026-03-24", "preco": 6.79}, {"data": "2026-03-25", "preco": 6.8825}, {"data": "2026-03-30", "preco": 6.91}, {"data": "2026-03-31", "preco": 6.8567}, {"data": "2026-04-01", "preco": 6.8767}, {"data": "2026-04-06", "preco": 6.89}, {"data": "2026-04-07", "preco": 6.94}, {"data": "2026-04-08", "preco": 6.942}, {"data": "2026-04-13", "preco": 6.9314}, {"data": "2026-04-15", "preco": 6.9733}, {"data": "2026-04-20", "preco": 6.92}, {"data": "2026-04-27", "preco": 6.9567}, {"data": "2026-04-28", "preco": 6.93}, {"data": "2026-04-29", "preco": 6.82}, {"data": "2026-05-04", "preco": 6.9233}, {"data": "2026-05-05", "preco": 6.9333}, {"data": "2026-05-11", "preco": 6.9033}, {"data": "2026-05-12", "preco": 7.04}, {"data": "2026-05-13", "preco": 6.875}, {"data": "2026-05-18", "preco": 6.8871}, {"data": "2026-05-19", "preco": 6.86}, {"data": "2026-05-20", "preco": 6.99}, {"data": "2026-05-25", "preco": 6.888}, {"data": "2026-05-26", "preco": 6.84}, {"data": "2026-05-27", "preco": 6.84}, {"data": "2026-06-01", "preco": 6.9029}, {"data": "2026-06-02", "preco": 6.8267}, {"data": "2026-06-03", "preco": 6.59}, {"data": "2026-06-08", "preco": 6.8267}, {"data": "2026-06-09", "preco": 6.8533}, {"data": "2026-06-10", "preco": 6.99}, {"data": "2026-06-11", "preco": 6.79}, {"data": "2026-06-15", "preco": 6.8233}, {"data": "2026-06-16", "preco": 6.8867}, {"data": "2026-06-17", "preco": 6.7775}, {"data": "2026-06-22", "preco": 6.8133}, {"data": "2026-06-23", "preco": 6.8617}, {"data": "2026-06-25", "preco": 6.79}, {"data": "2026-06-29", "preco": 6.8025}, {"data": "2026-06-30", "preco": 6.84}], "ETANOL": [{"data": "2026-01-06", "preco": 4.68}, {"data": "2026-01-07", "preco": 4.6022}, {"data": "2026-01-12", "preco": 4.636}, {"data": "2026-01-14", "preco": 4.704}, {"data": "2026-01-19", "preco": 4.6427}, {"data": "2026-01-22", "preco": 4.89}, {"data": "2026-01-26", "preco": 4.755}, {"data": "2026-01-27", "preco": 4.815}, {"data": "2026-01-28", "preco": 4.685}, {"data": "2026-02-02", "preco": 4.69}, {"data": "2026-02-03", "preco": 4.84}, {"data": "2026-02-04", "preco": 4.78}, {"data": "2026-02-05", "preco": 4.74}, {"data": "2026-02-09", "preco": 4.7814}, {"data": "2026-02-10", "preco": 4.79}, {"data": "2026-02-16", "preco": 4.9}, {"data": "2026-02-17", "preco": 4.77}, {"data": "2026-02-18", "preco": 4.69}, {"data": "2026-02-20", "preco": 4.69}, {"data": "2026-02-23", "preco": 4.8067}, {"data": "2026-02-24", "preco": 4.7867}, {"data": "2026-02-25", "preco": 4.69}, {"data": "2026-02-26", "preco": 4.57}, {"data": "2026-03-02", "preco": 4.662}, {"data": "2026-03-03", "preco": 4.8117}, {"data": "2026-03-05", "preco": 4.79}, {"data": "2026-03-09", "preco": 4.702}, {"data": "2026-03-11", "preco": 4.99}, {"data": "2026-03-12", "preco": 4.925}, {"data": "2026-03-13", "preco": 4.97}, {"data": "2026-03-16", "preco": 4.99}, {"data": "2026-03-17", "preco": 4.886}, {"data": "2026-03-18", "preco": 4.9}, {"data": "2026-03-23", "preco": 4.9671}, {"data": "2026-03-24", "preco": 4.99}, {"data": "2026-03-25", "preco": 4.875}, {"data": "2026-03-26", "preco": 4.99}, {"data": "2026-03-30", "preco": 4.9}, {"data": "2026-03-31", "preco": 4.9525}, {"data": "2026-04-01", "preco": 4.8867}, {"data": "2026-04-06", "preco": 5.03}, {"data": "2026-04-07", "preco": 5.19}, {"data": "2026-04-08", "preco": 4.932}, {"data": "2026-04-13", "preco": 5.0}, {"data": "2026-04-15", "preco": 4.928}, {"data": "2026-04-20", "preco": 4.9844}, {"data": "2026-04-21", "preco": 4.91}, {"data": "2026-04-27", "preco": 5.09}, {"data": "2026-04-28", "preco": 4.9678}, {"data": "2026-04-29", "preco": 4.77}, {"data": "2026-05-04", "preco": 4.8617}, {"data": "2026-05-05", "preco": 5.042}, {"data": "2026-05-11", "preco": 4.972}, {"data": "2026-05-12", "preco": 4.99}, {"data": "2026-05-13", "preco": 4.7433}, {"data": "2026-05-18", "preco": 4.9243}, {"data": "2026-05-19", "preco": 4.7933}, {"data": "2026-05-20", "preco": 4.99}, {"data": "2026-05-25", "preco": 4.934}, {"data": "2026-05-26", "preco": 4.7567}, {"data": "2026-05-27", "preco": 4.6233}, {"data": "2026-06-01", "preco": 4.8267}, {"data": "2026-06-02", "preco": 4.7367}, {"data": "2026-06-03", "preco": 4.52}, {"data": "2026-06-08", "preco": 4.735}, {"data": "2026-06-09", "preco": 4.755}, {"data": "2026-06-10", "preco": 4.94}, {"data": "2026-06-11", "preco": 4.69}, {"data": "2026-06-15", "preco": 4.69}, {"data": "2026-06-16", "preco": 4.755}, {"data": "2026-06-17", "preco": 4.69}, {"data": "2026-06-22", "preco": 4.6167}, {"data": "2026-06-23", "preco": 4.714}, {"data": "2026-06-25", "preco": 4.69}, {"data": "2026-06-29", "preco": 4.63}, {"data": "2026-06-30", "preco": 4.81}], "GASOLINA": [{"data": "2026-01-06", "preco": 6.29}, {"data": "2026-01-07", "preco": 6.2762}, {"data": "2026-01-08", "preco": 6.29}, {"data": "2026-01-12", "preco": 6.3011}, {"data": "2026-01-14", "preco": 6.2757}, {"data": "2026-01-19", "preco": 6.2592}, {"data": "2026-01-20", "preco": 5.99}, {"data": "2026-01-22", "preco": 6.29}, {"data": "2026-01-23", "preco": 6.29}, {"data": "2026-01-26", "preco": 6.31}, {"data": "2026-01-27", "preco": 6.2214}, {"data": "2026-01-28", "preco": 6.215}, {"data": "2026-02-02", "preco": 6.19}, {"data": "2026-02-03", "preco": 6.25}, {"data": "2026-02-04", "preco": 6.182}, {"data": "2026-02-05", "preco": 6.1333}, {"data": "2026-02-09", "preco": 6.169}, {"data": "2026-02-10", "preco": 6.1533}, {"data": "2026-02-16", "preco": 6.2033}, {"data": "2026-02-17", "preco": 6.14}, {"data": "2026-02-18", "preco": 6.1433}, {"data": "2026-02-19", "preco": 6.135}, {"data": "2026-02-20", "preco": 6.11}, {"data": "2026-02-23", "preco": 6.04}, {"data": "2026-02-24", "preco": 6.185}, {"data": "2026-02-25", "preco": 6.11}, {"data": "2026-02-26", "preco": 6.1433}, {"data": "2026-03-02", "preco": 6.0983}, {"data": "2026-03-03", "preco": 6.0857}, {"data": "2026-03-05", "preco": 6.1133}, {"data": "2026-03-09", "preco": 6.0743}, {"data": "2026-03-11", "preco": 6.59}, {"data": "2026-03-12", "preco": 6.4467}, {"data": "2026-03-13", "preco": 6.5833}, {"data": "2026-03-16", "preco": 6.55}, {"data": "2026-03-17", "preco": 6.5987}, {"data": "2026-03-18", "preco": 6.57}, {"data": "2026-03-23", "preco": 6.5411}, {"data": "2026-03-24", "preco": 6.59}, {"data": "2026-03-25", "preco": 6.5325}, {"data": "2026-03-26", "preco": 6.59}, {"data": "2026-03-30", "preco": 6.5471}, {"data": "2026-03-31", "preco": 6.4717}, {"data": "2026-04-01", "preco": 6.4233}, {"data": "2026-04-06", "preco": 6.4533}, {"data": "2026-04-07", "preco": 6.495}, {"data": "2026-04-08", "preco": 6.4933}, {"data": "2026-04-13", "preco": 6.4918}, {"data": "2026-04-15", "preco": 6.454}, {"data": "2026-04-20", "preco": 6.45}, {"data": "2026-04-21", "preco": 6.54}, {"data": "2026-04-27", "preco": 6.4633}, {"data": "2026-04-28", "preco": 6.4575}, {"data": "2026-04-29", "preco": 6.36}, {"data": "2026-05-04", "preco": 6.455}, {"data": "2026-05-05", "preco": 6.4775}, {"data": "2026-05-11", "preco": 6.4571}, {"data": "2026-05-12", "preco": 6.472}, {"data": "2026-05-13", "preco": 6.395}, {"data": "2026-05-18", "preco": 6.435}, {"data": "2026-05-19", "preco": 6.406}, {"data": "2026-05-20", "preco": 6.5733}, {"data": "2026-05-25", "preco": 6.4567}, {"data": "2026-05-26", "preco": 6.465}, {"data": "2026-05-27", "preco": 6.4275}, {"data": "2026-06-01", "preco": 6.384}, {"data": "2026-06-02", "preco": 6.4775}, {"data": "2026-06-03", "preco": 6.605}, {"data": "2026-06-08", "preco": 6.41}, {"data": "2026-06-09", "preco": 6.36}, {"data": "2026-06-10", "preco": 6.4533}, {"data": "2026-06-11", "preco": 6.39}, {"data": "2026-06-15", "preco": 6.37}, {"data": "2026-06-16", "preco": 6.47}, {"data": "2026-06-17", "preco": 6.6317}, {"data": "2026-06-22", "preco": 6.6775}, {"data": "2026-06-23", "preco": 6.6357}, {"data": "2026-06-25", "preco": 6.69}, {"data": "2026-06-29", "preco": 6.6343}, {"data": "2026-06-30", "preco": 6.56}], "GASOLINA ADITIVADA": [{"data": "2026-01-06", "preco": 6.64}, {"data": "2026-01-07", "preco": 6.5173}, {"data": "2026-01-08", "preco": 6.49}, {"data": "2026-01-12", "preco": 6.6233}, {"data": "2026-01-14", "preco": 6.5043}, {"data": "2026-01-19", "preco": 6.5082}, {"data": "2026-01-20", "preco": 6.39}, {"data": "2026-01-22", "preco": 6.49}, {"data": "2026-01-23", "preco": 6.49}, {"data": "2026-01-26", "preco": 6.61}, {"data": "2026-01-27", "preco": 6.55}, {"data": "2026-01-28", "preco": 6.49}, {"data": "2026-02-02", "preco": 6.49}, {"data": "2026-02-03", "preco": 6.65}, {"data": "2026-02-04", "preco": 6.4075}, {"data": "2026-02-05", "preco": 6.37}, {"data": "2026-02-09", "preco": 6.389}, {"data": "2026-02-10", "preco": 6.528}, {"data": "2026-02-16", "preco": 6.4383}, {"data": "2026-02-17", "preco": 6.39}, {"data": "2026-02-18", "preco": 6.3433}, {"data": "2026-02-19", "preco": 6.335}, {"data": "2026-02-20", "preco": 6.34}, {"data": "2026-02-23", "preco": 6.39}, {"data": "2026-02-24", "preco": 6.3683}, {"data": "2026-02-25", "preco": 6.34}, {"data": "2026-02-26", "preco": 6.635}, {"data": "2026-03-02", "preco": 6.308}, {"data": "2026-03-03", "preco": 6.3286}, {"data": "2026-03-05", "preco": 6.4133}, {"data": "2026-03-09", "preco": 6.3171}, {"data": "2026-03-11", "preco": 6.9567}, {"data": "2026-03-12", "preco": 6.79}, {"data": "2026-03-13", "preco": 6.7167}, {"data": "2026-03-16", "preco": 6.89}, {"data": "2026-03-17", "preco": 6.8614}, {"data": "2026-03-18", "preco": 6.78}, {"data": "2026-03-23", "preco": 6.83}, {"data": "2026-03-24", "preco": 6.79}, {"data": "2026-03-25", "preco": 6.7567}, {"data": "2026-03-26", "preco": 6.79}, {"data": "2026-03-30", "preco": 6.7757}, {"data": "2026-03-31", "preco": 6.646}, {"data": "2026-04-01", "preco": 6.725}, {"data": "2026-04-06", "preco": 6.7533}, {"data": "2026-04-07", "preco": 6.82}, {"data": "2026-04-08", "preco": 6.718}, {"data": "2026-04-13", "preco": 6.6891}, {"data": "2026-04-15", "preco": 6.634}, {"data": "2026-04-20", "preco": 6.7485}, {"data": "2026-04-21", "preco": 6.54}, {"data": "2026-04-27", "preco": 6.73}, {"data": "2026-04-28", "preco": 6.7017}, {"data": "2026-05-04", "preco": 6.6963}, {"data": "2026-05-05", "preco": 6.69}, {"data": "2026-05-11", "preco": 6.7143}, {"data": "2026-05-12", "preco": 6.616}, {"data": "2026-05-13", "preco": 6.6367}, {"data": "2026-05-18", "preco": 6.7071}, {"data": "2026-05-19", "preco": 6.686}, {"data": "2026-05-20", "preco": 6.7067}, {"data": "2026-05-25", "preco": 6.7567}, {"data": "2026-05-26", "preco": 6.706}, {"data": "2026-05-27", "preco": 6.6833}, {"data": "2026-06-01", "preco": 6.674}, {"data": "2026-06-02", "preco": 6.69}, {"data": "2026-06-03", "preco": 7.09}, {"data": "2026-06-08", "preco": 6.685}, {"data": "2026-06-09", "preco": 6.66}, {"data": "2026-06-10", "preco": 6.6867}, {"data": "2026-06-11", "preco": 6.59}, {"data": "2026-06-15", "preco": 6.72}, {"data": "2026-06-16", "preco": 6.7367}, {"data": "2026-06-17", "preco": 6.87}, {"data": "2026-06-22", "preco": 6.9962}, {"data": "2026-06-23", "preco": 6.8833}, {"data": "2026-06-25", "preco": 6.89}, {"data": "2026-06-29", "preco": 6.9557}, {"data": "2026-06-30", "preco": 6.808}], "GNV": [{"data": "2026-01-07", "preco": 4.09}, {"data": "2026-01-12", "preco": 4.09}, {"data": "2026-01-19", "preco": 4.09}, {"data": "2026-01-26", "preco": 4.09}, {"data": "2026-02-09", "preco": 3.99}, {"data": "2026-02-19", "preco": 3.99}, {"data": "2026-02-23", "preco": 3.99}, {"data": "2026-02-26", "preco": 3.99}, {"data": "2026-03-05", "preco": 3.99}, {"data": "2026-03-09", "preco": 3.99}, {"data": "2026-03-13", "preco": 3.99}, {"data": "2026-03-18", "preco": 3.99}, {"data": "2026-03-23", "preco": 3.99}, {"data": "2026-03-26", "preco": 3.99}, {"data": "2026-03-31", "preco": 3.99}, {"data": "2026-04-06", "preco": 3.99}, {"data": "2026-04-20", "preco": 3.99}, {"data": "2026-05-13", "preco": 3.99}, {"data": "2026-05-18", "preco": 3.99}, {"data": "2026-05-26", "preco": 3.99}, {"data": "2026-05-27", "preco": 3.99}, {"data": "2026-06-01", "preco": 3.99}, {"data": "2026-06-02", "preco": 3.99}, {"data": "2026-06-11", "preco": 4.29}, {"data": "2026-06-17", "preco": 4.29}, {"data": "2026-06-25", "preco": 4.29}, {"data": "2026-06-30", "preco": 4.29}]};
+// Metadados de endereço de cada posto (dado que não muda por coleta).
+const POSTOS_ENDERECOS = {"A.B.C. AUTO SERVICOS LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA ROBERT KENNEDY", "numero": "21", "bairro": "SAO TORQUATO"}, "ARARA AZUL REDE DE POSTOS LTDA": {"municipio": "VILA VELHA", "rua": "RODOVIA DO SOL", "numero": "530", "bairro": "PRAIA DE ITAPARICA"}, "AUTO POSTO ARACAS LTDA": {"municipio": "VILA VELHA", "rua": "RODOVIA DARLY SANTOS", "numero": "S/N", "bairro": "POLO EMPRESARIAL NOVO MEXICO"}, "AUTO POSTO BOULEVARD LTDA": {"municipio": "VILA VELHA", "rua": "RODOVIA DO SOL", "numero": "S/N", "bairro": "PRAIA DE ITAPARICA"}, "AUTO POSTO DE COMBUSTIVEL RTT LTDA": {"municipio": "VILA VELHA", "rua": "RUA MOEMA", "numero": "38", "bairro": "DIVINO ESPÍRITO SANTO"}, "AUTO POSTO GASCROMA COMERCIO DE COMBUSTIVEIS, LUBRIFICANTES E SERVICOS LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA JERONIMO MONTEIRO", "numero": "840", "bairro": "JABURUNA"}, "AUTO POSTO ILHA DAS GARCAS LTDA": {"municipio": "VILA VELHA", "rua": "RUA MARIA DE OLIVEIRA MARES GUIA", "numero": "40", "bairro": "PRAIA DAS GAIVOTAS"}, "AUTO POSTO R M LTDA": {"municipio": "VILA VELHA", "rua": "RODOVIA DO SOL", "numero": "3701", "bairro": "PRAIA DE ITAPARICA"}, "AUTO POSTO SUCESSO LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA JOAO FRANCISCO GONCALVES", "numero": "746", "bairro": "COBILANDIA"}, "AUTO POSTO VALE ENCANTADO LTDA.": {"municipio": "VILA VELHA", "rua": "RUA SOBREIRO", "numero": "395", "bairro": "RIO MARINHO"}, "AUTO POSTO VILA VELHA LTDA": {"municipio": "VILA VELHA", "rua": "RODOVIA CARLOS LINDENBERG", "numero": "101", "bairro": "CENTRO"}, "AUTOPOSTO DE COMBUSTIVEIS MASP SANTA INES LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA CARLOS LINDENBERG", "numero": "3241", "bairro": "SANTA INES"}, "CARREFOUR COMERCIO E INDUSTRIA LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA DARLY SANTOS", "numero": "4393", "bairro": "NOSSA SENHORA DA PENHA"}, "COMERCIO DE COMBUSTIVEIS COQUEIRAL DE ITAPARICA LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA SANTA LEOPOLDINA", "numero": "635", "bairro": "COQUEIRAL DE ITAPARICA"}, "COMERCIO DE COMBUSTIVEIS LINDENBERG LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA CARLOS LINDENBERG", "numero": "5718", "bairro": "SANTA INES"}, "DERIVADOS PETROLEO SANTA INES LTDA": {"municipio": "VILA VELHA", "rua": "RODOVIA CARLOS LINDENBERG", "numero": "1801", "bairro": "SANTA INES"}, "FRED ROSALEM HELIODORO": {"municipio": "VILA VELHA", "rua": "RUA JOSE ROSALEM", "numero": "1", "bairro": "SANTA INES"}, "ITAPARICA PETROLEO E COMERCIO LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA CARLOS LINDENBERG", "numero": "1395", "bairro": "COBI DE CIMA"}, "J C RODRIGUES NETO E FILHOS LTDA": {"municipio": "VILA VELHA", "rua": "RUA CEARA", "numero": "S/N", "bairro": "PRAIA DA COSTA"}, "POSTO ARIBIRI DO GAS LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA CARLOS LINDENBERG", "numero": "1944", "bairro": "SANTA INES"}, "POSTO CAPUABA LTDA": {"municipio": "VILA VELHA", "rua": "ESTRADA CAPUABA", "numero": "21", "bairro": "ATAIDE"}, "POSTO CHAMPAGNAT LTDA": {"municipio": "VILA VELHA", "rua": "RUA HUGO MUSSO", "numero": "550", "bairro": "PRAIA DA COSTA"}, "POSTO CRISTOVAO COLOMBO LTDA": {"municipio": "VILA VELHA", "rua": "RUA CRISTOVAO COLOMBO", "numero": "582", "bairro": "CRISTOVAO COLOMBO"}, "POSTO ITAPOA LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA FRANCELINA SETUBAL", "numero": "333", "bairro": "ITAPOAN"}, "POSTO MARCELA LTDA": {"municipio": "VILA VELHA", "rua": "RUA DO PESSEGUEIRO", "numero": "S/N", "bairro": "DIVINO ESPÍRITO SANTO"}, "POSTO PERIM LTDA": {"municipio": "VILA VELHA", "rua": "RUA SANTA LEOPOLDINA", "numero": "1650", "bairro": "ITAPARICA"}, "POSTO RIO MARINHO COMERCIO DE DERIVADOS DE PETROLEO EIRELI - EPP": {"municipio": "VILA VELHA", "rua": "AVENIDA RIO MARINHO", "numero": "S/N", "bairro": "RIO MARINHO"}, "POSTO SATURNINO RANGEL MAURO LTDA": {"municipio": "VILA VELHA", "rua": "RUA PROFESSOR AUGUSTO RUSCH", "numero": "121", "bairro": "PRAIA DE ITAPARICA"}, "POSTO TRES COQUEIROS LTDA": {"municipio": "VILA VELHA", "rua": "RODOVIA CARLOS LINDENBERG", "numero": "S/N", "bairro": "ALVORADA"}, "RGM 2 COMERCIO DE PETROLEO LTDA": {"municipio": "VILA VELHA", "rua": "AVENIDA CARLOS LINDENBERG", "numero": "2423", "bairro": "IBES"}};
 const HISTORICO_POSTOS = {"A.B.C. AUTO SERVICOS LTDA": {"DIESEL": [{"data": "2026-01-06", "preco": 6.09}, {"data": "2026-01-12", "preco": 6.09}, {"data": "2026-01-20", "preco": 6.09}, {"data": "2026-01-28", "preco": 6.09}, {"data": "2026-02-02", "preco": 6.09}, {"data": "2026-02-10", "preco": 6.09}, {"data": "2026-02-23", "preco": 6.09}, {"data": "2026-03-09", "preco": 6.19}, {"data": "2026-03-16", "preco": 6.39}, {"data": "2026-03-23", "preco": 6.99}, {"data": "2026-03-30", "preco": 6.89}, {"data": "2026-04-07", "preco": 6.89}, {"data": "2026-04-20", "preco": 6.99}, {"data": "2026-04-27", "preco": 6.99}, {"data": "2026-05-04", "preco": 6.89}, {"data": "2026-05-11", "preco": 6.89}, {"data": "2026-05-19", "preco": 6.89}, {"data": "2026-05-25", "preco": 6.89}, {"data": "2026-06-09", "preco": 6.89}, {"data": "2026-06-16", "preco": 6.89}, {"data": "2026-06-22", "preco": 6.89}], "DIESEL S10": [{"data": "2026-01-06", "preco": 6.09}, {"data": "2026-01-12", "preco": 6.09}, {"data": "2026-01-20", "preco": 6.09}, {"data": "2026-01-28", "preco": 6.09}, {"data": "2026-02-02", "preco": 6.09}, {"data": "2026-02-10", "preco": 6.09}, {"data": "2026-02-23", "preco": 6.09}, {"data": "2026-03-09", "preco": 6.19}, {"data": "2026-03-16", "preco": 6.39}, {"data": "2026-03-23", "preco": 6.99}, {"data": "2026-03-30", "preco": 6.89}, {"data": "2026-04-07", "preco": 6.89}, {"data": "2026-04-20", "preco": 6.99}, {"data": "2026-04-27", "preco": 6.99}, {"data": "2026-05-04", "preco": 6.89}, {"data": "2026-05-11", "preco": 6.89}, {"data": "2026-05-19", "preco": 6.89}, {"data": "2026-05-25", "preco": 6.89}, {"data": "2026-06-09", "preco": 6.89}, {"data": "2026-06-16", "preco": 6.89}, {"data": "2026-06-22", "preco": 6.89}], "GASOLINA": [{"data": "2026-01-06", "preco": 6.29}, {"data": "2026-01-12", "preco": 6.29}, {"data": "2026-01-20", "preco": 5.99}, {"data": "2026-01-28", "preco": 5.99}, {"data": "2026-02-02", "preco": 5.99}, {"data": "2026-02-10", "preco": 5.89}, {"data": "2026-02-23", "preco": 5.89}, {"data": "2026-03-09", "preco": 5.89}, {"data": "2026-03-16", "preco": 6.59}, {"data": "2026-03-23", "preco": 6.45}, {"data": "2026-03-30", "preco": 6.45}, {"data": "2026-04-07", "preco": 6.45}, {"data": "2026-04-20", "preco": 6.45}, {"data": "2026-04-27", "preco": 6.45}, {"data": "2026-05-04", "preco": 6.45}, {"data": "2026-05-11", "preco": 6.45}, {"data": "2026-05-19", "preco": 6.39}, {"data": "2026-05-25", "preco": 6.39}, {"data": "2026-06-01", "preco": 6.39}, {"data": "2026-06-09", "preco": 6.39}, {"data": "2026-06-16", "preco": 6.39}, {"data": "2026-06-22", "preco": 6.67}], "GASOLINA ADITIVADA": [{"data": "2026-01-06", "preco": 6.69}, {"data": "2026-01-12", "preco": 6.69}, {"data": "2026-01-20", "preco": 6.39}, {"data": "2026-01-28", "preco": 6.39}, {"data": "2026-02-02", "preco": 6.29}, {"data": "2026-02-10", "preco": 6.29}, {"data": "2026-02-23", "preco": 6.29}, {"data": "2026-03-09", "preco": 6.29}, {"data": "2026-03-16", "preco": 6.99}, {"data": "2026-03-23", "preco": 6.85}, {"data": "2026-03-30", "preco": 6.85}, {"data": "2026-04-07", "preco": 6.85}, {"data": "2026-04-20", "preco": 6.85}, {"data": "2026-04-27", "preco": 6.85}, {"data": "2026-05-04", "preco": 6.85}, {"data": "2026-05-11", "preco": 6.85}, {"data": "2026-05-19", "preco": 6.79}, {"data": "2026-05-25", "preco": 6.79}, {"data": "2026-06-01", "preco": 6.79}, {"data": "2026-06-09", "preco": 6.79}, {"data": "2026-06-16", "preco": 6.79}, {"data": "2026-06-22", "preco": 7.07}], "ETANOL": [{"data": "2026-05-25", "preco": 4.89}]}, "POSTO ITAPOA LTDA": {"DIESEL S10": [{"data": "2026-01-06", "preco": 5.99}, {"data": "2026-01-14", "preco": 5.99}, {"data": "2026-01-28", "preco": 5.99}, {"data": "2026-02-24", "preco": 5.99}, {"data": "2026-03-03", "preco": 5.99}, {"data": "2026-03-24", "preco": 6.79}, {"data": "2026-03-31", "preco": 6.79}, {"data": "2026-04-06", "preco": 6.89}, {"data": "2026-04-15", "preco": 6.65}, {"data": "2026-04-28", "preco": 6.78}, {"data": "2026-05-05", "preco": 6.78}, {"data": "2026-05-11", "preco": 6.78}, {"data": "2026-05-19", "preco": 6.78}, {"data": "2026-05-26", "preco": 6.78}, {"data": "2026-06-01", "preco": 6.78}, {"data": "2026-06-08", "preco": 6.78}, {"data": "2026-06-16", "preco": 6.78}, {"data": "2026-06-22", "preco": 6.78}], "ETANOL": [{"data": "2026-01-06", "preco": 4.68}, {"data": "2026-01-14", "preco": 4.68}, {"data": "2026-01-28", "preco": 4.78}, {"data": "2026-02-24", "preco": 4.78}, {"data": "2026-03-03", "preco": 4.78}, {"data": "2026-03-24", "preco": 4.99}, {"data": "2026-03-31", "preco": 4.99}, {"data": "2026-04-06", "preco": 4.99}, {"data": "2026-04-15", "preco": 4.99}, {"data": "2026-04-28", "preco": 4.99}, {"data": "2026-05-05", "preco": 4.87}, {"data": "2026-05-11", "preco": 4.87}, {"data": "2026-05-19", "preco": 4.77}, {"data": "2026-05-26", "preco": 4.67}, {"data": "2026-06-01", "preco": 4.59}, {"data": "2026-06-08", "preco": 4.59}, {"data": "2026-06-16", "preco": 4.55}, {"data": "2026-06-22", "preco": 4.55}], "GASOLINA": [{"data": "2026-01-06", "preco": 6.29}, {"data": "2026-01-14", "preco": 6.29}, {"data": "2026-01-28", "preco": 6.29}, {"data": "2026-02-24", "preco": 6.19}, {"data": "2026-03-03", "preco": 6.09}, {"data": "2026-03-24", "preco": 6.59}, {"data": "2026-03-31", "preco": 6.59}, {"data": "2026-04-06", "preco": 6.46}, {"data": "2026-04-15", "preco": 6.46}, {"data": "2026-04-28", "preco": 6.46}, {"data": "2026-05-05", "preco": 6.46}, {"data": "2026-05-11", "preco": 6.46}, {"data": "2026-05-19", "preco": 6.39}, {"data": "2026-05-26", "preco": 6.39}, {"data": "2026-06-01", "preco": 6.35}, {"data": "2026-06-08", "preco": 6.35}, {"data": "2026-06-16", "preco": 6.35}, {"data": "2026-06-22", "preco": 6.67}], "GASOLINA ADITIVADA": [{"data": "2026-01-06", "preco": 6.59}, {"data": "2026-01-14", "preco": 6.59}, {"data": "2026-01-28", "preco": 6.59}, {"data": "2026-02-24", "preco": 6.49}, {"data": "2026-03-03", "preco": 6.39}, {"data": "2026-03-24", "preco": 6.79}, {"data": "2026-03-31", "preco": 6.59}, {"data": "2026-04-06", "preco": 6.66}, {"data": "2026-04-15", "preco": 6.66}, {"data": "2026-04-28", "preco": 6.66}, {"data": "2026-05-05", "preco": 6.66}, {"data": "2026-05-11", "preco": 6.66}, {"data": "2026-05-19", "preco": 6.59}, {"data": "2026-05-26", "preco": 6.59}, {"data": "2026-06-01", "preco": 6.55}, {"data": "2026-06-08", "preco": 6.55}, {"data": "2026-06-16", "preco": 6.55}, {"data": "2026-06-22", "preco": 6.87}]}, "AUTO POSTO VALE ENCANTADO LTDA.": {"DIESEL": [{"data": "2026-01-07", "preco": 6.19}, {"data": "2026-01-19", "preco": 6.19}, {"data": "2026-01-27", "preco": 6.19}, {"data": "2026-02-05", "preco": 6.19}, {"data": "2026-02-20", "preco": 6.19}, {"data": "2026-02-25", "preco": 6.19}, {"data": "2026-03-02", "preco": 6.19}, {"data": "2026-03-12", "preco": 6.59}, {"data": "2026-03-17", "preco": 6.59}, {"data": "2026-03-25", "preco": 6.89}, {"data": "2026-04-08", "preco": 6.89}, {"data": "2026-05-27", "preco": 6.89}, {"data": "2026-06-23", "preco": 6.59}], "DIESEL S10": [{"data": "2026-01-07", "preco": 6.29}, {"data": "2026-01-19", "preco": 6.29}, {"data": "2026-01-27", "preco": 6.29}, {"data": "2026-02-05", "preco": 6.29}, {"data": "2026-02-20", "preco": 6.29}, {"data": "2026-02-25", "preco": 6.29}, {"data": "2026-03-02", "preco": 6.29}, {"data": "2026-03-12", "preco": 6.69}, {"data": "2026-03-17", "preco": 6.69}, {"data": "2026-03-25", "preco": 6.99}, {"data": "2026-04-08", "preco": 6.99}, {"data": "2026-05-27", "preco": 6.99}, {"data": "2026-06-23", "preco": 6.89}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.19}, {"data": "2026-01-19", "preco": 6.19}, {"data": "2026-01-27", "preco": 6.19}, {"data": "2026-02-05", "preco": 6.19}, {"data": "2026-02-20", "preco": 6.19}, {"data": "2026-02-25", "preco": 6.19}, {"data": "2026-03-02", "preco": 6.19}, {"data": "2026-03-12", "preco": 6.59}, {"data": "2026-03-17", "preco": 6.59}, {"data": "2026-03-25", "preco": 6.59}, {"data": "2026-04-08", "preco": 6.59}, {"data": "2026-05-27", "preco": 6.59}, {"data": "2026-06-23", "preco": 6.69}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.29}, {"data": "2026-01-19", "preco": 6.29}, {"data": "2026-01-27", "preco": 6.29}, {"data": "2026-02-05", "preco": 6.29}, {"data": "2026-02-20", "preco": 6.29}, {"data": "2026-02-25", "preco": 6.29}, {"data": "2026-03-02", "preco": 6.29}, {"data": "2026-03-12", "preco": 6.79}, {"data": "2026-03-17", "preco": 6.79}, {"data": "2026-03-25", "preco": 6.79}, {"data": "2026-04-08", "preco": 6.79}, {"data": "2026-05-27", "preco": 6.79}, {"data": "2026-06-23", "preco": 6.89}], "ETANOL": [{"data": "2026-03-17", "preco": 4.5}, {"data": "2026-06-23", "preco": 4.59}]}, "POSTO CHAMPAGNAT LTDA": {"DIESEL S10": [{"data": "2026-01-07", "preco": 6.09}, {"data": "2026-01-12", "preco": 6.09}, {"data": "2026-01-27", "preco": 6.29}, {"data": "2026-02-02", "preco": 6.29}, {"data": "2026-02-10", "preco": 6.29}, {"data": "2026-02-16", "preco": 6.29}, {"data": "2026-03-17", "preco": 6.99}, {"data": "2026-04-08", "preco": 6.99}, {"data": "2026-04-13", "preco": 6.99}, {"data": "2026-04-28", "preco": 6.99}, {"data": "2026-05-04", "preco": 6.99}, {"data": "2026-05-19", "preco": 6.99}, {"data": "2026-06-02", "preco": 6.99}, {"data": "2026-06-10", "preco": 6.99}, {"data": "2026-06-16", "preco": 6.99}, {"data": "2026-06-23", "preco": 6.99}, {"data": "2026-06-30", "preco": 6.99}], "ETANOL": [{"data": "2026-01-07", "preco": 4.59}, {"data": "2026-01-12", "preco": 4.59}, {"data": "2026-01-27", "preco": 4.79}, {"data": "2026-02-02", "preco": 4.79}, {"data": "2026-02-10", "preco": 4.79}, {"data": "2026-02-16", "preco": 4.89}, {"data": "2026-03-17", "preco": 4.99}, {"data": "2026-04-08", "preco": 4.99}, {"data": "2026-04-13", "preco": 4.99}, {"data": "2026-04-28", "preco": 4.99}, {"data": "2026-05-04", "preco": 4.99}, {"data": "2026-05-19", "preco": 4.99}, {"data": "2026-06-02", "preco": 4.99}, {"data": "2026-06-10", "preco": 4.99}, {"data": "2026-06-16", "preco": 4.99}, {"data": "2026-06-23", "preco": 4.99}, {"data": "2026-06-30", "preco": 4.99}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.39}, {"data": "2026-01-12", "preco": 6.39}, {"data": "2026-01-27", "preco": 6.29}, {"data": "2026-02-02", "preco": 6.29}, {"data": "2026-02-10", "preco": 6.29}, {"data": "2026-02-16", "preco": 6.28}, {"data": "2026-03-17", "preco": 6.59}, {"data": "2026-04-08", "preco": 6.59}, {"data": "2026-04-13", "preco": 6.59}, {"data": "2026-04-28", "preco": 6.59}, {"data": "2026-05-04", "preco": 6.59}, {"data": "2026-05-19", "preco": 6.49}, {"data": "2026-06-02", "preco": 6.49}, {"data": "2026-06-10", "preco": 6.49}, {"data": "2026-06-16", "preco": 6.69}, {"data": "2026-06-23", "preco": 6.69}, {"data": "2026-06-30", "preco": 6.69}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.69}, {"data": "2026-01-12", "preco": 6.69}, {"data": "2026-01-27", "preco": 6.69}, {"data": "2026-02-02", "preco": 6.69}, {"data": "2026-02-10", "preco": 6.69}, {"data": "2026-02-16", "preco": 6.59}, {"data": "2026-03-17", "preco": 6.79}, {"data": "2026-04-08", "preco": 6.79}, {"data": "2026-04-13", "preco": 6.79}, {"data": "2026-04-28", "preco": 6.79}, {"data": "2026-05-04", "preco": 6.79}, {"data": "2026-05-19", "preco": 6.79}, {"data": "2026-06-02", "preco": 6.79}, {"data": "2026-06-10", "preco": 6.79}, {"data": "2026-06-16", "preco": 6.89}, {"data": "2026-06-23", "preco": 6.89}, {"data": "2026-06-30", "preco": 6.89}]}, "AUTO POSTO SUCESSO LTDA": {"DIESEL S10": [{"data": "2026-01-07", "preco": 5.89}, {"data": "2026-01-19", "preco": 5.89}, {"data": "2026-01-27", "preco": 5.89}, {"data": "2026-02-05", "preco": 5.89}, {"data": "2026-02-20", "preco": 5.89}, {"data": "2026-02-25", "preco": 5.79}, {"data": "2026-03-02", "preco": 5.79}, {"data": "2026-03-12", "preco": 6.36}, {"data": "2026-03-17", "preco": 6.55}, {"data": "2026-03-25", "preco": 6.96}, {"data": "2026-04-01", "preco": 6.96}, {"data": "2026-04-08", "preco": 6.96}, {"data": "2026-04-29", "preco": 6.82}, {"data": "2026-05-27", "preco": 6.69}, {"data": "2026-06-03", "preco": 6.59}, {"data": "2026-06-23", "preco": 6.86}], "ETANOL": [{"data": "2026-01-07", "preco": 4.43}, {"data": "2026-01-19", "preco": 4.59}, {"data": "2026-01-27", "preco": 4.59}, {"data": "2026-02-05", "preco": 4.59}, {"data": "2026-02-20", "preco": 4.59}, {"data": "2026-02-25", "preco": 4.59}, {"data": "2026-03-02", "preco": 4.59}, {"data": "2026-03-12", "preco": 4.66}, {"data": "2026-03-17", "preco": 4.86}, {"data": "2026-03-25", "preco": 4.86}, {"data": "2026-04-01", "preco": 4.82}, {"data": "2026-04-08", "preco": 4.82}, {"data": "2026-04-29", "preco": 4.77}, {"data": "2026-05-27", "preco": 4.59}, {"data": "2026-06-03", "preco": 4.52}, {"data": "2026-06-23", "preco": 4.45}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.15}, {"data": "2026-01-19", "preco": 6.15}, {"data": "2026-01-27", "preco": 6.15}, {"data": "2026-02-05", "preco": 6.06}, {"data": "2026-02-20", "preco": 6.06}, {"data": "2026-02-25", "preco": 6.06}, {"data": "2026-03-02", "preco": 6.06}, {"data": "2026-03-12", "preco": 6.36}, {"data": "2026-03-17", "preco": 6.46}, {"data": "2026-03-25", "preco": 6.56}, {"data": "2026-04-01", "preco": 6.42}, {"data": "2026-04-08", "preco": 6.42}, {"data": "2026-04-29", "preco": 6.36}, {"data": "2026-05-27", "preco": 6.36}, {"data": "2026-06-03", "preco": 6.32}, {"data": "2026-06-23", "preco": 6.55}]}, "ARARA AZUL REDE DE POSTOS LTDA": {"DIESEL S10": [{"data": "2026-01-07", "preco": 5.95}, {"data": "2026-01-14", "preco": 5.95}, {"data": "2026-01-28", "preco": 5.95}, {"data": "2026-02-02", "preco": 5.95}, {"data": "2026-02-18", "preco": 5.95}, {"data": "2026-02-24", "preco": 5.95}, {"data": "2026-03-03", "preco": 5.95}, {"data": "2026-03-13", "preco": 6.29}, {"data": "2026-03-18", "preco": 6.49}, {"data": "2026-03-23", "preco": 6.67}, {"data": "2026-04-01", "preco": 6.98}, {"data": "2026-04-08", "preco": 6.98}, {"data": "2026-04-15", "preco": 6.98}, {"data": "2026-04-28", "preco": 6.98}, {"data": "2026-05-05", "preco": 6.98}, {"data": "2026-05-11", "preco": 6.98}, {"data": "2026-05-25", "preco": 6.98}, {"data": "2026-06-02", "preco": 6.74}, {"data": "2026-06-08", "preco": 6.74}, {"data": "2026-06-17", "preco": 6.74}, {"data": "2026-06-22", "preco": 6.74}, {"data": "2026-06-29", "preco": 6.74}], "ETANOL": [{"data": "2026-01-07", "preco": 4.59}, {"data": "2026-01-14", "preco": 4.59}, {"data": "2026-01-28", "preco": 4.59}, {"data": "2026-02-02", "preco": 4.59}, {"data": "2026-02-18", "preco": 4.59}, {"data": "2026-02-24", "preco": 4.59}, {"data": "2026-03-03", "preco": 4.79}, {"data": "2026-03-13", "preco": 4.95}, {"data": "2026-03-18", "preco": 4.95}, {"data": "2026-03-23", "preco": 4.95}, {"data": "2026-04-01", "preco": 4.95}, {"data": "2026-04-08", "preco": 4.95}, {"data": "2026-04-15", "preco": 4.95}, {"data": "2026-04-28", "preco": 5.09}, {"data": "2026-05-05", "preco": 5.09}, {"data": "2026-05-11", "preco": 5.09}, {"data": "2026-05-25", "preco": 5.09}, {"data": "2026-06-02", "preco": 4.68}, {"data": "2026-06-08", "preco": 4.68}, {"data": "2026-06-17", "preco": 4.59}, {"data": "2026-06-22", "preco": 4.59}, {"data": "2026-06-29", "preco": 4.59}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.29}, {"data": "2026-01-14", "preco": 6.29}, {"data": "2026-01-28", "preco": 6.29}, {"data": "2026-02-02", "preco": 6.29}, {"data": "2026-02-18", "preco": 6.17}, {"data": "2026-02-24", "preco": 6.17}, {"data": "2026-03-03", "preco": 6.09}, {"data": "2026-03-13", "preco": 6.57}, {"data": "2026-03-18", "preco": 6.57}, {"data": "2026-03-23", "preco": 6.57}, {"data": "2026-04-01", "preco": 6.46}, {"data": "2026-04-08", "preco": 6.46}, {"data": "2026-04-15", "preco": 6.46}, {"data": "2026-04-28", "preco": 6.46}, {"data": "2026-05-05", "preco": 6.46}, {"data": "2026-05-11", "preco": 6.46}, {"data": "2026-05-25", "preco": 6.69}, {"data": "2026-06-02", "preco": 6.69}, {"data": "2026-06-08", "preco": 6.69}, {"data": "2026-06-17", "preco": 6.34}, {"data": "2026-06-22", "preco": 6.67}, {"data": "2026-06-29", "preco": 6.67}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.49}, {"data": "2026-01-14", "preco": 6.49}, {"data": "2026-01-28", "preco": 6.49}, {"data": "2026-02-02", "preco": 6.49}, {"data": "2026-02-18", "preco": 6.37}, {"data": "2026-02-24", "preco": 6.37}, {"data": "2026-03-03", "preco": 6.29}, {"data": "2026-03-13", "preco": 6.57}, {"data": "2026-03-18", "preco": 6.77}, {"data": "2026-03-23", "preco": 6.77}, {"data": "2026-04-01", "preco": 6.76}, {"data": "2026-04-08", "preco": 6.76}, {"data": "2026-04-15", "preco": 6.76}, {"data": "2026-04-28", "preco": 6.76}, {"data": "2026-05-05", "preco": 6.76}, {"data": "2026-05-11", "preco": 6.76}, {"data": "2026-05-25", "preco": 6.69}, {"data": "2026-06-02", "preco": 6.69}, {"data": "2026-06-08", "preco": 6.69}, {"data": "2026-06-17", "preco": 6.59}, {"data": "2026-06-22", "preco": 6.92}, {"data": "2026-06-29", "preco": 6.92}]}, "POSTO PERIM LTDA": {"DIESEL S10": [{"data": "2026-01-07", "preco": 6.19}, {"data": "2026-01-14", "preco": 6.19}, {"data": "2026-01-22", "preco": 6.19}, {"data": "2026-01-26", "preco": 6.19}, {"data": "2026-02-03", "preco": 6.19}, {"data": "2026-02-10", "preco": 6.19}, {"data": "2026-02-17", "preco": 6.19}, {"data": "2026-03-09", "preco": 6.19}, {"data": "2026-03-16", "preco": 6.39}, {"data": "2026-04-06", "preco": 6.99}, {"data": "2026-04-13", "preco": 6.99}, {"data": "2026-04-27", "preco": 6.99}, {"data": "2026-05-05", "preco": 6.99}, {"data": "2026-05-11", "preco": 6.99}, {"data": "2026-05-18", "preco": 6.99}, {"data": "2026-05-25", "preco": 6.99}, {"data": "2026-06-01", "preco": 6.99}, {"data": "2026-06-15", "preco": 6.99}, {"data": "2026-06-22", "preco": 6.99}, {"data": "2026-06-29", "preco": 6.99}], "ETANOL": [{"data": "2026-01-07", "preco": 4.89}, {"data": "2026-01-14", "preco": 4.89}, {"data": "2026-01-22", "preco": 4.89}, {"data": "2026-01-26", "preco": 4.89}, {"data": "2026-02-03", "preco": 4.89}, {"data": "2026-02-10", "preco": 4.89}, {"data": "2026-02-17", "preco": 4.89}, {"data": "2026-03-09", "preco": 4.89}, {"data": "2026-03-16", "preco": 4.99}, {"data": "2026-04-06", "preco": 5.19}, {"data": "2026-04-13", "preco": 5.19}, {"data": "2026-04-27", "preco": 5.19}, {"data": "2026-05-05", "preco": 5.19}, {"data": "2026-05-11", "preco": 5.19}, {"data": "2026-05-18", "preco": 5.19}, {"data": "2026-05-25", "preco": 5.19}, {"data": "2026-06-01", "preco": 5.19}, {"data": "2026-06-15", "preco": 4.89}, {"data": "2026-06-22", "preco": 4.89}, {"data": "2026-06-29", "preco": 4.89}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.29}, {"data": "2026-01-14", "preco": 6.29}, {"data": "2026-01-22", "preco": 6.29}, {"data": "2026-01-26", "preco": 6.29}, {"data": "2026-02-03", "preco": 6.29}, {"data": "2026-02-10", "preco": 6.19}, {"data": "2026-02-17", "preco": 6.19}, {"data": "2026-03-09", "preco": 6.09}, {"data": "2026-03-16", "preco": 6.59}, {"data": "2026-04-06", "preco": 6.49}, {"data": "2026-04-13", "preco": 6.49}, {"data": "2026-04-27", "preco": 6.49}, {"data": "2026-05-05", "preco": 6.49}, {"data": "2026-05-11", "preco": 6.49}, {"data": "2026-05-18", "preco": 6.49}, {"data": "2026-05-25", "preco": 6.49}, {"data": "2026-06-01", "preco": 6.39}, {"data": "2026-06-15", "preco": 6.39}, {"data": "2026-06-22", "preco": 6.69}, {"data": "2026-06-29", "preco": 6.69}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.49}, {"data": "2026-01-14", "preco": 6.49}, {"data": "2026-01-22", "preco": 6.49}, {"data": "2026-01-26", "preco": 6.49}, {"data": "2026-02-03", "preco": 6.49}, {"data": "2026-02-10", "preco": 6.39}, {"data": "2026-02-17", "preco": 6.39}, {"data": "2026-03-09", "preco": 6.29}, {"data": "2026-03-16", "preco": 6.79}, {"data": "2026-04-06", "preco": 6.69}, {"data": "2026-04-13", "preco": 6.69}, {"data": "2026-04-27", "preco": 6.69}, {"data": "2026-05-05", "preco": 6.69}, {"data": "2026-05-11", "preco": 6.69}, {"data": "2026-05-18", "preco": 6.69}, {"data": "2026-05-25", "preco": 6.69}, {"data": "2026-06-01", "preco": 6.59}, {"data": "2026-06-15", "preco": 6.59}, {"data": "2026-06-22", "preco": 6.89}, {"data": "2026-06-29", "preco": 6.89}]}, "POSTO CRISTOVAO COLOMBO LTDA": {"DIESEL S10": [{"data": "2026-01-07", "preco": 5.99}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.19}, {"data": "2026-01-14", "preco": 6.19}, {"data": "2026-01-27", "preco": 6.19}, {"data": "2026-02-04", "preco": 6.19}, {"data": "2026-02-09", "preco": 6.19}, {"data": "2026-02-16", "preco": 6.19}, {"data": "2026-02-24", "preco": 6.19}, {"data": "2026-03-03", "preco": 6.19}, {"data": "2026-03-17", "preco": 6.59}, {"data": "2026-03-30", "preco": 6.59}, {"data": "2026-04-07", "preco": 6.45}, {"data": "2026-04-20", "preco": 6.45}, {"data": "2026-04-28", "preco": 6.45}, {"data": "2026-05-05", "preco": 6.45}, {"data": "2026-05-12", "preco": 6.45}, {"data": "2026-05-19", "preco": 6.39}, {"data": "2026-05-26", "preco": 6.39}, {"data": "2026-06-01", "preco": 6.39}, {"data": "2026-06-08", "preco": 6.39}, {"data": "2026-06-17", "preco": 6.69}, {"data": "2026-06-22", "preco": 6.69}, {"data": "2026-06-30", "preco": 6.59}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.49}, {"data": "2026-01-14", "preco": 6.49}, {"data": "2026-01-27", "preco": 6.49}, {"data": "2026-02-04", "preco": 6.49}, {"data": "2026-02-09", "preco": 6.49}, {"data": "2026-02-16", "preco": 6.49}, {"data": "2026-02-24", "preco": 6.49}, {"data": "2026-03-03", "preco": 6.49}, {"data": "2026-03-17", "preco": 6.89}, {"data": "2026-03-30", "preco": 6.89}, {"data": "2026-04-07", "preco": 6.75}, {"data": "2026-04-20", "preco": 6.75}, {"data": "2026-04-28", "preco": 6.75}, {"data": "2026-05-05", "preco": 6.75}, {"data": "2026-05-12", "preco": 6.75}, {"data": "2026-05-19", "preco": 6.69}, {"data": "2026-05-26", "preco": 6.69}, {"data": "2026-06-01", "preco": 6.69}, {"data": "2026-06-08", "preco": 6.69}, {"data": "2026-06-17", "preco": 6.99}, {"data": "2026-06-22", "preco": 6.99}, {"data": "2026-06-30", "preco": 6.86}]}, "AUTO POSTO R M LTDA": {"DIESEL S10": [{"data": "2026-01-07", "preco": 6.09}, {"data": "2026-01-12", "preco": 6.09}, {"data": "2026-01-19", "preco": 6.09}, {"data": "2026-01-26", "preco": 6.09}, {"data": "2026-02-03", "preco": 6.06}, {"data": "2026-02-09", "preco": 6.06}, {"data": "2026-02-18", "preco": 6.06}, {"data": "2026-02-23", "preco": 6.06}, {"data": "2026-03-05", "preco": 6.09}, {"data": "2026-03-11", "preco": 6.39}, {"data": "2026-03-16", "preco": 6.39}, {"data": "2026-03-23", "preco": 6.99}, {"data": "2026-04-06", "preco": 6.89}, {"data": "2026-04-13", "preco": 6.89}, {"data": "2026-04-20", "preco": 6.89}, {"data": "2026-04-28", "preco": 6.89}, {"data": "2026-05-04", "preco": 6.79}, {"data": "2026-05-18", "preco": 6.79}, {"data": "2026-05-25", "preco": 6.79}, {"data": "2026-06-01", "preco": 6.79}, {"data": "2026-06-08", "preco": 6.74}, {"data": "2026-06-15", "preco": 6.74}, {"data": "2026-06-22", "preco": 6.74}, {"data": "2026-06-29", "preco": 6.74}], "ETANOL": [{"data": "2026-01-07", "preco": 4.72}, {"data": "2026-01-12", "preco": 4.72}, {"data": "2026-01-19", "preco": 4.76}, {"data": "2026-01-26", "preco": 4.76}, {"data": "2026-02-03", "preco": 4.79}, {"data": "2026-02-09", "preco": 4.79}, {"data": "2026-02-18", "preco": 4.89}, {"data": "2026-02-23", "preco": 4.89}, {"data": "2026-03-05", "preco": 4.89}, {"data": "2026-03-11", "preco": 4.99}, {"data": "2026-03-16", "preco": 4.99}, {"data": "2026-03-23", "preco": 4.99}, {"data": "2026-04-06", "preco": 4.99}, {"data": "2026-04-13", "preco": 4.99}, {"data": "2026-04-20", "preco": 4.99}, {"data": "2026-04-28", "preco": 4.99}, {"data": "2026-05-04", "preco": 4.89}, {"data": "2026-05-18", "preco": 4.89}, {"data": "2026-05-25", "preco": 4.75}, {"data": "2026-06-01", "preco": 4.75}, {"data": "2026-06-08", "preco": 4.59}, {"data": "2026-06-15", "preco": 4.59}, {"data": "2026-06-22", "preco": 4.54}, {"data": "2026-06-29", "preco": 4.54}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.29}, {"data": "2026-01-12", "preco": 6.29}, {"data": "2026-01-19", "preco": 6.29}, {"data": "2026-01-26", "preco": 6.29}, {"data": "2026-02-03", "preco": 6.19}, {"data": "2026-02-09", "preco": 6.19}, {"data": "2026-02-18", "preco": 6.09}, {"data": "2026-02-23", "preco": 6.09}, {"data": "2026-03-05", "preco": 6.06}, {"data": "2026-03-11", "preco": 6.59}, {"data": "2026-03-16", "preco": 6.59}, {"data": "2026-03-23", "preco": 6.56}, {"data": "2026-04-06", "preco": 6.43}, {"data": "2026-04-13", "preco": 6.43}, {"data": "2026-04-20", "preco": 6.43}, {"data": "2026-04-28", "preco": 6.43}, {"data": "2026-05-04", "preco": 6.42}, {"data": "2026-05-18", "preco": 6.42}, {"data": "2026-05-25", "preco": 6.39}, {"data": "2026-06-01", "preco": 6.39}, {"data": "2026-06-08", "preco": 6.35}, {"data": "2026-06-15", "preco": 6.35}, {"data": "2026-06-22", "preco": 6.67}, {"data": "2026-06-29", "preco": 6.67}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.69}, {"data": "2026-01-12", "preco": 6.69}, {"data": "2026-01-19", "preco": 6.69}, {"data": "2026-01-26", "preco": 6.69}, {"data": "2026-02-03", "preco": 6.59}, {"data": "2026-02-09", "preco": 6.59}, {"data": "2026-02-18", "preco": 6.49}, {"data": "2026-02-23", "preco": 6.49}, {"data": "2026-03-05", "preco": 6.46}, {"data": "2026-03-11", "preco": 6.99}, {"data": "2026-03-16", "preco": 6.99}, {"data": "2026-03-23", "preco": 6.96}, {"data": "2026-04-06", "preco": 6.83}, {"data": "2026-04-13", "preco": 6.83}, {"data": "2026-04-20", "preco": 6.83}, {"data": "2026-04-28", "preco": 6.83}, {"data": "2026-05-04", "preco": 6.82}, {"data": "2026-05-18", "preco": 6.82}, {"data": "2026-05-25", "preco": 6.79}, {"data": "2026-06-01", "preco": 6.79}, {"data": "2026-06-08", "preco": 6.75}, {"data": "2026-06-15", "preco": 6.75}, {"data": "2026-06-22", "preco": 7.07}, {"data": "2026-06-29", "preco": 7.07}]}, "COMERCIO DE COMBUSTIVEIS LINDENBERG LTDA": {"DIESEL S10": [{"data": "2026-01-07", "preco": 5.85}, {"data": "2026-01-19", "preco": 5.85}, {"data": "2026-02-04", "preco": 5.85}, {"data": "2026-02-26", "preco": 5.85}, {"data": "2026-03-18", "preco": 6.79}, {"data": "2026-03-31", "preco": 6.79}, {"data": "2026-04-20", "preco": 6.89}, {"data": "2026-05-13", "preco": 6.76}, {"data": "2026-05-26", "preco": 6.75}, {"data": "2026-06-02", "preco": 6.75}, {"data": "2026-06-17", "preco": 6.59}, {"data": "2026-06-30", "preco": 6.59}], "ETANOL": [{"data": "2026-01-07", "preco": 4.43}, {"data": "2026-01-19", "preco": 4.59}, {"data": "2026-02-04", "preco": 4.57}, {"data": "2026-02-26", "preco": 4.57}, {"data": "2026-03-18", "preco": 4.85}, {"data": "2026-03-31", "preco": 4.84}, {"data": "2026-04-20", "preco": 4.84}, {"data": "2026-05-13", "preco": 4.62}, {"data": "2026-05-26", "preco": 4.61}, {"data": "2026-06-02", "preco": 4.54}, {"data": "2026-06-17", "preco": 4.49}, {"data": "2026-06-30", "preco": 4.45}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.25}, {"data": "2026-01-19", "preco": 6.25}, {"data": "2026-02-04", "preco": 6.08}, {"data": "2026-02-26", "preco": 6.06}, {"data": "2026-03-18", "preco": 6.55}, {"data": "2026-03-31", "preco": 6.44}, {"data": "2026-04-20", "preco": 6.37}, {"data": "2026-05-13", "preco": 6.37}, {"data": "2026-05-26", "preco": 6.36}, {"data": "2026-06-02", "preco": 6.34}, {"data": "2026-06-17", "preco": 6.69}, {"data": "2026-06-30", "preco": 6.49}]}, "DERIVADOS PETROLEO SANTA INES LTDA": {"ETANOL": [{"data": "2026-01-07", "preco": 4.69}, {"data": "2026-01-19", "preco": 4.69}, {"data": "2026-03-31", "preco": 4.99}, {"data": "2026-04-15", "preco": 4.99}, {"data": "2026-04-20", "preco": 4.99}, {"data": "2026-05-13", "preco": 4.62}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.29}, {"data": "2026-01-19", "preco": 6.29}, {"data": "2026-03-31", "preco": 6.45}, {"data": "2026-04-15", "preco": 6.45}, {"data": "2026-04-20", "preco": 6.45}, {"data": "2026-05-13", "preco": 6.37}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.49}, {"data": "2026-01-19", "preco": 6.49}, {"data": "2026-03-31", "preco": 6.65}, {"data": "2026-04-15", "preco": 6.65}, {"data": "2026-04-20", "preco": 6.65}, {"data": "2026-05-13", "preco": 6.57}]}, "CARREFOUR COMERCIO E INDUSTRIA LTDA": {"ETANOL": [{"data": "2026-01-07", "preco": 4.39}, {"data": "2026-01-19", "preco": 4.39}, {"data": "2026-02-09", "preco": 4.59}, {"data": "2026-03-02", "preco": 4.59}, {"data": "2026-03-09", "preco": 4.59}, {"data": "2026-03-23", "preco": 4.87}, {"data": "2026-04-13", "preco": 4.77}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.29}, {"data": "2026-01-19", "preco": 6.29}, {"data": "2026-02-09", "preco": 6.09}, {"data": "2026-03-02", "preco": 6.09}, {"data": "2026-03-09", "preco": 6.09}, {"data": "2026-03-23", "preco": 6.57}, {"data": "2026-04-13", "preco": 6.57}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.39}, {"data": "2026-01-19", "preco": 6.39}, {"data": "2026-02-09", "preco": 6.19}, {"data": "2026-03-02", "preco": 6.19}, {"data": "2026-03-09", "preco": 6.19}, {"data": "2026-03-23", "preco": 6.77}, {"data": "2026-04-13", "preco": 6.59}]}, "AUTOPOSTO DE COMBUSTIVEIS MASP SANTA INES LTDA": {"ETANOL": [{"data": "2026-01-07", "preco": 4.69}, {"data": "2026-01-19", "preco": 4.69}, {"data": "2026-03-26", "preco": 4.99}, {"data": "2026-04-15", "preco": 4.99}], "GASOLINA": [{"data": "2026-01-07", "preco": 6.29}, {"data": "2026-01-19", "preco": 6.29}, {"data": "2026-03-26", "preco": 6.59}, {"data": "2026-04-15", "preco": 6.45}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.49}, {"data": "2026-01-19", "preco": 6.49}, {"data": "2026-03-26", "preco": 6.79}, {"data": "2026-04-15", "preco": 6.65}]}, "POSTO ARIBIRI DO GAS LTDA": {"GASOLINA": [{"data": "2026-01-07", "preco": 6.29}, {"data": "2026-01-19", "preco": 6.29}, {"data": "2026-02-04", "preco": 6.16}, {"data": "2026-02-19", "preco": 6.08}, {"data": "2026-02-26", "preco": 6.08}, {"data": "2026-03-13", "preco": 6.59}, {"data": "2026-03-18", "preco": 6.59}, {"data": "2026-03-26", "preco": 6.59}, {"data": "2026-03-31", "preco": 6.49}, {"data": "2026-04-20", "preco": 6.49}, {"data": "2026-05-13", "preco": 6.39}, {"data": "2026-05-26", "preco": 6.39}, {"data": "2026-06-02", "preco": 6.39}, {"data": "2026-06-17", "preco": 6.69}, {"data": "2026-06-30", "preco": 6.49}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.49}, {"data": "2026-01-19", "preco": 6.49}, {"data": "2026-02-04", "preco": 6.36}, {"data": "2026-02-19", "preco": 6.28}, {"data": "2026-02-26", "preco": 6.28}, {"data": "2026-03-13", "preco": 6.79}, {"data": "2026-03-18", "preco": 6.79}, {"data": "2026-03-26", "preco": 6.79}, {"data": "2026-03-31", "preco": 6.69}, {"data": "2026-04-20", "preco": 6.69}, {"data": "2026-05-13", "preco": 6.59}, {"data": "2026-05-26", "preco": 6.59}, {"data": "2026-06-02", "preco": 6.59}, {"data": "2026-06-17", "preco": 6.89}, {"data": "2026-06-30", "preco": 6.69}], "GNV": [{"data": "2026-01-07", "preco": 4.09}, {"data": "2026-01-19", "preco": 4.09}, {"data": "2026-02-19", "preco": 3.99}, {"data": "2026-02-26", "preco": 3.99}, {"data": "2026-03-13", "preco": 3.99}, {"data": "2026-03-18", "preco": 3.99}, {"data": "2026-03-26", "preco": 3.99}, {"data": "2026-03-31", "preco": 3.99}, {"data": "2026-04-20", "preco": 3.99}, {"data": "2026-05-13", "preco": 3.99}, {"data": "2026-05-26", "preco": 3.99}, {"data": "2026-06-02", "preco": 3.99}, {"data": "2026-06-17", "preco": 4.29}, {"data": "2026-06-30", "preco": 4.29}]}, "AUTO POSTO ILHA DAS GARCAS LTDA": {"GASOLINA": [{"data": "2026-01-07", "preco": 6.39}, {"data": "2026-01-12", "preco": 6.39}, {"data": "2026-01-26", "preco": 6.39}, {"data": "2026-02-03", "preco": 6.29}, {"data": "2026-02-09", "preco": 6.29}, {"data": "2026-02-16", "preco": 6.29}, {"data": "2026-03-05", "preco": 6.19}, {"data": "2026-03-09", "preco": 6.19}, {"data": "2026-03-16", "preco": 6.39}, {"data": "2026-03-23", "preco": 6.39}, {"data": "2026-04-06", "preco": 6.42}, {"data": "2026-04-13", "preco": 6.44}, {"data": "2026-04-20", "preco": 6.44}, {"data": "2026-04-28", "preco": 6.39}, {"data": "2026-05-04", "preco": 6.39}, {"data": "2026-05-18", "preco": 6.39}, {"data": "2026-05-25", "preco": 6.39}, {"data": "2026-06-01", "preco": 6.39}, {"data": "2026-06-08", "preco": 6.39}, {"data": "2026-06-15", "preco": 6.39}, {"data": "2026-06-29", "preco": 6.49}], "GASOLINA ADITIVADA": [{"data": "2026-01-07", "preco": 6.69}, {"data": "2026-01-12", "preco": 6.69}, {"data": "2026-01-26", "preco": 6.69}, {"data": "2026-02-03", "preco": 6.59}, {"data": "2026-02-09", "preco": 6.59}, {"data": "2026-02-16", "preco": 6.59}, {"data": "2026-03-05", "preco": 6.49}, {"data": "2026-03-09", "preco": 6.49}, {"data": "2026-03-16", "preco": 6.69}, {"data": "2026-03-23", "preco": 6.69}, {"data": "2026-04-06", "preco": 6.82}, {"data": "2026-04-13", "preco": 6.84}, {"data": "2026-04-20", "preco": 6.84}, {"data": "2026-04-28", "preco": 6.79}, {"data": "2026-05-04", "preco": 6.79}, {"data": "2026-05-18", "preco": 6.79}, {"data": "2026-05-25", "preco": 6.79}, {"data": "2026-06-01", "preco": 6.79}, {"data": "2026-06-08", "preco": 6.79}, {"data": "2026-06-15", "preco": 6.79}, {"data": "2026-06-29", "preco": 6.89}]}, "POSTO MARCELA LTDA": {"DIESEL S10": [{"data": "2026-01-08", "preco": 5.99}, {"data": "2026-01-14", "preco": 5.99}, {"data": "2026-01-23", "preco": 5.99}, {"data": "2026-01-28", "preco": 5.99}, {"data": "2026-02-04", "preco": 5.99}, {"data": "2026-02-09", "preco": 5.99}, {"data": "2026-02-19", "preco": 5.99}, {"data": "2026-02-24", "preco": 5.99}, {"data": "2026-03-13", "preco": 6.49}, {"data": "2026-03-17", "preco": 6.79}, {"data": "2026-03-25", "preco": 6.89}, {"data": "2026-03-30", "preco": 6.89}, {"data": "2026-04-20", "preco": 6.99}, {"data": "2026-04-28", "preco": 6.89}, {"data": "2026-05-05", "preco": 6.89}, {"data": "2026-05-11", "preco": 6.89}, {"data": "2026-06-01", "preco": 6.89}, {"data": "2026-06-09", "preco": 6.89}, {"data": "2026-06-17", "preco": 6.79}, {"data": "2026-06-23", "preco": 6.79}, {"data": "2026-06-30", "preco": 6.79}], "GASOLINA": [{"data": "2026-01-08", "preco": 6.29}, {"data": "2026-01-14", "preco": 6.29}, {"data": "2026-01-23", "preco": 6.29}, {"data": "2026-01-28", "preco": 6.29}, {"data": "2026-02-04", "preco": 6.19}, {"data": "2026-02-09", "preco": 6.19}, {"data": "2026-02-19", "preco": 6.19}, {"data": "2026-02-24", "preco": 6.19}, {"data": "2026-03-13", "preco": 6.59}, {"data": "2026-03-17", "preco": 6.59}, {"data": "2026-03-25", "preco": 6.59}, {"data": "2026-03-30", "preco": 6.59}, {"data": "2026-04-20", "preco": 6.46}, {"data": "2026-04-28", "preco": 6.46}, {"data": "2026-05-05", "preco": 6.46}, {"data": "2026-05-11", "preco": 6.46}, {"data": "2026-06-01", "preco": 6.39}, {"data": "2026-06-09", "preco": 6.39}, {"data": "2026-06-17", "preco": 6.69}, {"data": "2026-06-23", "preco": 6.69}, {"data": "2026-06-30", "preco": 6.56}], "GASOLINA ADITIVADA": [{"data": "2026-01-08", "preco": 6.49}, {"data": "2026-01-14", "preco": 6.49}, {"data": "2026-01-23", "preco": 6.49}, {"data": "2026-01-28", "preco": 6.49}, {"data": "2026-02-04", "preco": 6.39}, {"data": "2026-02-09", "preco": 6.39}, {"data": "2026-02-19", "preco": 6.39}, {"data": "2026-02-24", "preco": 6.39}, {"data": "2026-03-13", "preco": 6.79}, {"data": "2026-03-17", "preco": 6.79}, {"data": "2026-03-25", "preco": 6.79}, {"data": "2026-03-30", "preco": 6.79}, {"data": "2026-04-20", "preco": 6.66}, {"data": "2026-04-28", "preco": 6.66}, {"data": "2026-05-05", "preco": 6.66}, {"data": "2026-05-11", "preco": 6.66}, {"data": "2026-06-01", "preco": 6.59}, {"data": "2026-06-09", "preco": 6.59}, {"data": "2026-06-17", "preco": 6.89}, {"data": "2026-06-23", "preco": 6.89}, {"data": "2026-06-30", "preco": 6.76}], "ETANOL": [{"data": "2026-03-13", "preco": 4.99}]}, "AUTO POSTO ARACAS LTDA": {"DIESEL": [{"data": "2026-01-12", "preco": 5.89}, {"data": "2026-01-26", "preco": 5.89}, {"data": "2026-02-09", "preco": 5.89}, {"data": "2026-02-23", "preco": 5.89}, {"data": "2026-03-05", "preco": 5.89}, {"data": "2026-03-09", "preco": 5.89}, {"data": "2026-03-23", "preco": 6.69}, {"data": "2026-04-06", "preco": 6.69}, {"data": "2026-04-20", "preco": 6.69}, {"data": "2026-05-18", "preco": 6.69}, {"data": "2026-05-27", "preco": 6.69}, {"data": "2026-06-01", "preco": 6.69}, {"data": "2026-06-11", "preco": 6.69}, {"data": "2026-06-25", "preco": 6.69}], "DIESEL S10": [{"data": "2026-01-12", "preco": 5.99}, {"data": "2026-01-26", "preco": 5.99}, {"data": "2026-02-09", "preco": 5.99}, {"data": "2026-02-23", "preco": 5.99}, {"data": "2026-03-05", "preco": 5.99}, {"data": "2026-03-09", "preco": 5.99}, {"data": "2026-03-23", "preco": 6.79}, {"data": "2026-04-06", "preco": 6.79}, {"data": "2026-04-20", "preco": 6.79}, {"data": "2026-05-18", "preco": 6.79}, {"data": "2026-05-27", "preco": 6.79}, {"data": "2026-06-01", "preco": 6.79}, {"data": "2026-06-11", "preco": 6.79}, {"data": "2026-06-25", "preco": 6.79}], "ETANOL": [{"data": "2026-01-12", "preco": 4.49}, {"data": "2026-01-26", "preco": 4.65}, {"data": "2026-02-09", "preco": 4.69}, {"data": "2026-02-23", "preco": 4.69}, {"data": "2026-03-05", "preco": 4.69}, {"data": "2026-03-09", "preco": 4.69}, {"data": "2026-03-23", "preco": 4.99}, {"data": "2026-04-06", "preco": 4.99}, {"data": "2026-04-20", "preco": 4.99}, {"data": "2026-05-18", "preco": 4.99}, {"data": "2026-05-27", "preco": 4.69}, {"data": "2026-06-01", "preco": 4.69}, {"data": "2026-06-11", "preco": 4.69}, {"data": "2026-06-25", "preco": 4.69}], "GASOLINA": [{"data": "2026-01-12", "preco": 6.29}, {"data": "2026-01-26", "preco": 6.29}, {"data": "2026-02-09", "preco": 6.09}, {"data": "2026-02-23", "preco": 6.09}, {"data": "2026-03-05", "preco": 6.09}, {"data": "2026-03-09", "preco": 6.09}, {"data": "2026-03-23", "preco": 6.59}, {"data": "2026-04-06", "preco": 6.49}, {"data": "2026-04-20", "preco": 6.49}, {"data": "2026-05-18", "preco": 6.39}, {"data": "2026-05-27", "preco": 6.39}, {"data": "2026-06-01", "preco": 6.39}, {"data": "2026-06-11", "preco": 6.39}, {"data": "2026-06-25", "preco": 6.69}], "GASOLINA ADITIVADA": [{"data": "2026-01-12", "preco": 6.49}, {"data": "2026-01-26", "preco": 6.49}, {"data": "2026-02-09", "preco": 6.29}, {"data": "2026-02-23", "preco": 6.29}, {"data": "2026-03-05", "preco": 6.29}, {"data": "2026-03-09", "preco": 6.29}, {"data": "2026-03-23", "preco": 6.79}, {"data": "2026-04-06", "preco": 6.69}, {"data": "2026-04-20", "preco": 6.69}, {"data": "2026-05-18", "preco": 6.59}, {"data": "2026-05-27", "preco": 6.59}, {"data": "2026-06-01", "preco": 6.59}, {"data": "2026-06-11", "preco": 6.59}, {"data": "2026-06-25", "preco": 6.89}], "GNV": [{"data": "2026-01-12", "preco": 4.09}, {"data": "2026-01-26", "preco": 4.09}, {"data": "2026-02-09", "preco": 3.99}, {"data": "2026-02-23", "preco": 3.99}, {"data": "2026-03-05", "preco": 3.99}, {"data": "2026-03-09", "preco": 3.99}, {"data": "2026-03-23", "preco": 3.99}, {"data": "2026-04-06", "preco": 3.99}, {"data": "2026-04-20", "preco": 3.99}, {"data": "2026-05-18", "preco": 3.99}, {"data": "2026-05-27", "preco": 3.99}, {"data": "2026-06-01", "preco": 3.99}, {"data": "2026-06-11", "preco": 4.29}, {"data": "2026-06-25", "preco": 4.29}]}, "POSTO TRES COQUEIROS LTDA": {"DIESEL": [{"data": "2026-01-12", "preco": 5.79}, {"data": "2026-01-19", "preco": 5.79}, {"data": "2026-02-09", "preco": 5.79}, {"data": "2026-03-02", "preco": 5.79}, {"data": "2026-03-09", "preco": 5.99}, {"data": "2026-03-23", "preco": 6.69}, {"data": "2026-03-30", "preco": 6.79}, {"data": "2026-04-13", "preco": 6.79}, {"data": "2026-04-20", "preco": 6.79}, {"data": "2026-04-27", "preco": 6.79}, {"data": "2026-05-04", "preco": 6.79}, {"data": "2026-05-11", "preco": 6.79}, {"data": "2026-05-19", "preco": 6.66}, {"data": "2026-06-09", "preco": 6.66}], "DIESEL S10": [{"data": "2026-01-12", "preco": 5.89}, {"data": "2026-01-19", "preco": 5.89}, {"data": "2026-02-09", "preco": 5.89}, {"data": "2026-03-02", "preco": 5.89}, {"data": "2026-03-09", "preco": 6.09}, {"data": "2026-03-23", "preco": 6.79}, {"data": "2026-03-30", "preco": 6.89}, {"data": "2026-04-13", "preco": 6.89}, {"data": "2026-04-20", "preco": 6.89}, {"data": "2026-04-27", "preco": 6.89}, {"data": "2026-05-04", "preco": 6.89}, {"data": "2026-05-11", "preco": 6.89}, {"data": "2026-05-19", "preco": 6.78}, {"data": "2026-06-09", "preco": 6.78}], "ETANOL": [{"data": "2026-01-12", "preco": 4.69}, {"data": "2026-01-19", "preco": 4.69}, {"data": "2026-02-09", "preco": 4.69}, {"data": "2026-03-02", "preco": 4.69}, {"data": "2026-03-09", "preco": 4.69}, {"data": "2026-03-23", "preco": 4.99}, {"data": "2026-03-30", "preco": 4.99}, {"data": "2026-04-13", "preco": 4.99}, {"data": "2026-04-20", "preco": 4.99}, {"data": "2026-04-27", "preco": 4.99}, {"data": "2026-05-04", "preco": 4.72}, {"data": "2026-05-11", "preco": 4.72}, {"data": "2026-05-19", "preco": 4.62}, {"data": "2026-06-09", "preco": 4.52}], "GASOLINA": [{"data": "2026-01-12", "preco": 6.29}, {"data": "2026-01-19", "preco": 6.29}, {"data": "2026-02-09", "preco": 6.09}, {"data": "2026-03-02", "preco": 6.08}, {"data": "2026-03-09", "preco": 6.08}, {"data": "2026-03-23", "preco": 6.59}, {"data": "2026-03-30", "preco": 6.45}, {"data": "2026-04-13", "preco": 6.45}, {"data": "2026-04-20", "preco": 6.45}, {"data": "2026-04-27", "preco": 6.45}, {"data": "2026-05-04", "preco": 6.39}, {"data": "2026-05-11", "preco": 6.39}, {"data": "2026-05-19", "preco": 6.37}, {"data": "2026-06-09", "preco": 6.32}], "GASOLINA ADITIVADA": [{"data": "2026-01-12", "preco": 6.49}, {"data": "2026-01-19", "preco": 6.49}, {"data": "2026-02-09", "preco": 6.29}, {"data": "2026-03-02", "preco": 6.28}, {"data": "2026-03-09", "preco": 6.28}, {"data": "2026-03-23", "preco": 6.79}, {"data": "2026-03-30", "preco": 6.65}, {"data": "2026-04-13", "preco": 6.65}, {"data": "2026-04-20", "preco": 6.65}, {"data": "2026-04-27", "preco": 6.65}, {"data": "2026-05-04", "preco": 6.59}, {"data": "2026-05-11", "preco": 6.59}, {"data": "2026-05-19", "preco": 6.57}, {"data": "2026-06-09", "preco": 6.52}]}, "AUTO POSTO GASCROMA COMERCIO DE COMBUSTIVEIS, LUBRIFICANTES E SERVICOS LTDA": {"DIESEL": [{"data": "2026-01-12", "preco": 6.29}, {"data": "2026-01-27", "preco": 6.19}, {"data": "2026-02-03", "preco": 6.19}, {"data": "2026-02-10", "preco": 6.19}, {"data": "2026-02-26", "preco": 6.19}, {"data": "2026-03-11", "preco": 6.79}, {"data": "2026-03-17", "preco": 6.79}, {"data": "2026-03-30", "preco": 6.89}, {"data": "2026-04-07", "preco": 6.89}], "GASOLINA": [{"data": "2026-01-12", "preco": 6.29}, {"data": "2026-01-27", "preco": 6.29}, {"data": "2026-02-03", "preco": 6.29}, {"data": "2026-02-10", "preco": 6.29}, {"data": "2026-02-26", "preco": 6.29}, {"data": "2026-03-11", "preco": 6.59}, {"data": "2026-03-17", "preco": 6.79}, {"data": "2026-03-30", "preco": 6.59}, {"data": "2026-04-07", "preco": 6.59}, {"data": "2026-04-13", "preco": 6.59}, {"data": "2026-04-21", "preco": 6.59}, {"data": "2026-05-05", "preco": 6.59}, {"data": "2026-05-12", "preco": 6.59}, {"data": "2026-05-20", "preco": 6.89}, {"data": "2026-05-26", "preco": 6.89}, {"data": "2026-06-03", "preco": 6.89}, {"data": "2026-06-10", "preco": 6.49}, {"data": "2026-06-16", "preco": 6.49}, {"data": "2026-06-23", "preco": 6.69}, {"data": "2026-06-29", "preco": 6.69}], "GASOLINA ADITIVADA": [{"data": "2026-01-12", "preco": 6.99}, {"data": "2026-01-27", "preco": 6.99}, {"data": "2026-02-03", "preco": 6.99}, {"data": "2026-02-10", "preco": 6.99}, {"data": "2026-02-26", "preco": 6.99}, {"data": "2026-03-11", "preco": 6.89}, {"data": "2026-03-17", "preco": 6.89}, {"data": "2026-03-30", "preco": 6.79}, {"data": "2026-04-07", "preco": 6.79}, {"data": "2026-04-13", "preco": 6.59}, {"data": "2026-04-21", "preco": 6.59}, {"data": "2026-05-05", "preco": 6.59}, {"data": "2026-05-12", "preco": 6.59}, {"data": "2026-05-20", "preco": 7.09}, {"data": "2026-05-26", "preco": 7.09}, {"data": "2026-06-03", "preco": 7.09}, {"data": "2026-06-10", "preco": 6.89}, {"data": "2026-06-16", "preco": 6.89}, {"data": "2026-06-23", "preco": 6.89}, {"data": "2026-06-29", "preco": 6.89}]}, "AUTO POSTO BOULEVARD LTDA": {"DIESEL S10": [{"data": "2026-01-12", "preco": 6.09}, {"data": "2026-01-19", "preco": 6.09}, {"data": "2026-01-26", "preco": 6.09}, {"data": "2026-02-03", "preco": 6.09}, {"data": "2026-02-09", "preco": 6.09}, {"data": "2026-02-16", "preco": 6.09}, {"data": "2026-02-23", "preco": 6.09}, {"data": "2026-03-11", "preco": 6.39}, {"data": "2026-03-16", "preco": 6.39}, {"data": "2026-03-23", "preco": 6.99}, {"data": "2026-04-06", "preco": 6.89}, {"data": "2026-04-13", "preco": 6.99}, {"data": "2026-04-20", "preco": 6.89}, {"data": "2026-04-28", "preco": 6.89}, {"data": "2026-05-18", "preco": 6.79}, {"data": "2026-05-25", "preco": 6.79}, {"data": "2026-06-01", "preco": 6.79}, {"data": "2026-06-08", "preco": 6.74}, {"data": "2026-06-15", "preco": 6.74}, {"data": "2026-06-22", "preco": 6.74}, {"data": "2026-06-29", "preco": 6.74}], "ETANOL": [{"data": "2026-01-12", "preco": 4.69}, {"data": "2026-01-19", "preco": 4.72}, {"data": "2026-01-26", "preco": 4.72}, {"data": "2026-02-03", "preco": 4.84}, {"data": "2026-02-09", "preco": 4.84}, {"data": "2026-02-16", "preco": 4.84}, {"data": "2026-02-23", "preco": 4.84}, {"data": "2026-03-11", "preco": 4.99}, {"data": "2026-03-16", "preco": 4.99}, {"data": "2026-03-23", "preco": 4.99}, {"data": "2026-04-06", "preco": 4.99}, {"data": "2026-04-13", "preco": 5.19}, {"data": "2026-04-20", "preco": 4.99}, {"data": "2026-04-28", "preco": 4.99}, {"data": "2026-05-18", "preco": 4.79}, {"data": "2026-05-25", "preco": 4.75}, {"data": "2026-06-01", "preco": 4.75}, {"data": "2026-06-08", "preco": 4.59}, {"data": "2026-06-15", "preco": 4.59}, {"data": "2026-06-22", "preco": 4.54}, {"data": "2026-06-29", "preco": 4.54}], "GASOLINA": [{"data": "2026-01-12", "preco": 6.29}, {"data": "2026-01-19", "preco": 6.29}, {"data": "2026-01-26", "preco": 6.29}, {"data": "2026-02-03", "preco": 6.19}, {"data": "2026-02-09", "preco": 6.19}, {"data": "2026-02-16", "preco": 6.09}, {"data": "2026-02-23", "preco": 6.09}, {"data": "2026-03-11", "preco": 6.59}, {"data": "2026-03-16", "preco": 6.59}, {"data": "2026-03-23", "preco": 6.56}, {"data": "2026-04-06", "preco": 6.43}, {"data": "2026-04-13", "preco": 6.43}, {"data": "2026-04-20", "preco": 6.43}, {"data": "2026-04-28", "preco": 6.43}, {"data": "2026-05-18", "preco": 6.42}, {"data": "2026-05-25", "preco": 6.39}, {"data": "2026-06-01", "preco": 6.39}, {"data": "2026-06-08", "preco": 6.35}, {"data": "2026-06-15", "preco": 6.35}, {"data": "2026-06-22", "preco": 6.67}, {"data": "2026-06-29", "preco": 6.67}], "GASOLINA ADITIVADA": [{"data": "2026-01-12", "preco": 6.69}, {"data": "2026-01-19", "preco": 6.69}, {"data": "2026-01-26", "preco": 6.69}, {"data": "2026-02-03", "preco": 6.59}, {"data": "2026-02-09", "preco": 6.59}, {"data": "2026-02-16", "preco": 6.49}, {"data": "2026-02-23", "preco": 6.49}, {"data": "2026-03-11", "preco": 6.99}, {"data": "2026-03-16", "preco": 6.99}, {"data": "2026-03-23", "preco": 6.96}, {"data": "2026-04-06", "preco": 6.83}, {"data": "2026-04-13", "preco": 6.83}, {"data": "2026-04-20", "preco": 6.83}, {"data": "2026-04-28", "preco": 6.83}, {"data": "2026-05-18", "preco": 6.82}, {"data": "2026-05-25", "preco": 6.79}, {"data": "2026-06-01", "preco": 6.79}, {"data": "2026-06-08", "preco": 6.75}, {"data": "2026-06-15", "preco": 6.75}, {"data": "2026-06-22", "preco": 7.07}, {"data": "2026-06-29", "preco": 7.07}]}, "J C RODRIGUES NETO E FILHOS LTDA": {"GASOLINA": [{"data": "2026-01-12", "preco": 6.19}, {"data": "2026-02-10", "preco": 6.18}, {"data": "2026-02-24", "preco": 6.08}, {"data": "2026-03-31", "preco": 6.41}, {"data": "2026-04-08", "preco": 6.51}, {"data": "2026-04-13", "preco": 6.46}, {"data": "2026-04-21", "preco": 6.49}, {"data": "2026-04-28", "preco": 6.49}, {"data": "2026-05-04", "preco": 6.49}, {"data": "2026-05-12", "preco": 6.44}, {"data": "2026-05-20", "preco": 6.38}, {"data": "2026-06-10", "preco": 6.38}, {"data": "2026-06-16", "preco": 6.58}], "GASOLINA ADITIVADA": [{"data": "2026-01-12", "preco": 6.19}, {"data": "2026-02-24", "preco": 6.08}, {"data": "2026-03-31", "preco": 6.41}, {"data": "2026-04-08", "preco": 6.56}, {"data": "2026-04-13", "preco": 6.51}, {"data": "2026-04-21", "preco": 6.49}, {"data": "2026-04-28", "preco": 6.49}, {"data": "2026-05-04", "preco": 6.49}, {"data": "2026-05-12", "preco": 6.44}, {"data": "2026-05-20", "preco": 6.38}, {"data": "2026-06-10", "preco": 6.38}, {"data": "2026-06-16", "preco": 6.58}], "ETANOL": [{"data": "2026-02-10", "preco": 4.59}, {"data": "2026-04-08", "preco": 4.91}, {"data": "2026-04-13", "preco": 4.91}, {"data": "2026-04-21", "preco": 4.91}, {"data": "2026-04-28", "preco": 4.91}, {"data": "2026-05-04", "preco": 4.89}, {"data": "2026-05-12", "preco": 4.89}, {"data": "2026-05-20", "preco": 4.89}, {"data": "2026-06-10", "preco": 4.89}, {"data": "2026-06-16", "preco": 4.89}]}, "AUTO POSTO DE COMBUSTIVEL RTT LTDA": {"DIESEL S10": [{"data": "2026-01-14", "preco": 5.99}, {"data": "2026-01-27", "preco": 5.99}, {"data": "2026-02-04", "preco": 5.99}, {"data": "2026-02-09", "preco": 5.99}, {"data": "2026-02-16", "preco": 5.99}, {"data": "2026-02-24", "preco": 5.99}, {"data": "2026-03-03", "preco": 5.99}, {"data": "2026-03-12", "preco": 6.39}, {"data": "2026-03-17", "preco": 6.49}, {"data": "2026-04-07", "preco": 6.99}, {"data": "2026-04-20", "preco": 6.99}, {"data": "2026-04-28", "preco": 6.99}, {"data": "2026-05-05", "preco": 6.99}, {"data": "2026-05-12", "preco": 6.99}, {"data": "2026-05-20", "preco": 6.99}, {"data": "2026-05-26", "preco": 6.99}, {"data": "2026-06-01", "preco": 7.29}, {"data": "2026-06-08", "preco": 6.99}, {"data": "2026-06-17", "preco": 6.99}, {"data": "2026-06-23", "preco": 6.99}, {"data": "2026-06-30", "preco": 6.99}], "ETANOL": [{"data": "2026-01-14", "preco": 4.69}, {"data": "2026-01-27", "preco": 4.99}, {"data": "2026-02-04", "preco": 4.99}, {"data": "2026-02-09", "preco": 4.99}, {"data": "2026-02-16", "preco": 4.99}, {"data": "2026-02-24", "preco": 4.99}, {"data": "2026-03-03", "preco": 4.99}, {"data": "2026-03-12", "preco": 5.19}, {"data": "2026-03-17", "preco": 5.19}, {"data": "2026-04-07", "preco": 5.19}, {"data": "2026-04-20", "preco": 5.09}, {"data": "2026-04-28", "preco": 5.09}, {"data": "2026-05-05", "preco": 5.09}, {"data": "2026-05-12", "preco": 5.09}, {"data": "2026-05-20", "preco": 5.09}, {"data": "2026-05-26", "preco": 4.99}, {"data": "2026-06-01", "preco": 4.99}, {"data": "2026-06-08", "preco": 4.99}, {"data": "2026-06-17", "preco": 4.99}, {"data": "2026-06-23", "preco": 4.99}, {"data": "2026-06-30", "preco": 4.99}], "GASOLINA": [{"data": "2026-01-14", "preco": 6.29}, {"data": "2026-01-27", "preco": 6.29}, {"data": "2026-02-04", "preco": 6.29}, {"data": "2026-02-09", "preco": 6.29}, {"data": "2026-02-16", "preco": 6.29}, {"data": "2026-02-24", "preco": 6.29}, {"data": "2026-03-03", "preco": 5.99}, {"data": "2026-03-12", "preco": 6.39}, {"data": "2026-03-17", "preco": 6.49}, {"data": "2026-04-07", "preco": 6.49}, {"data": "2026-04-20", "preco": 6.45}, {"data": "2026-04-28", "preco": 6.45}, {"data": "2026-05-05", "preco": 6.45}, {"data": "2026-05-12", "preco": 6.45}, {"data": "2026-05-20", "preco": 6.45}, {"data": "2026-05-26", "preco": 6.37}, {"data": "2026-06-01", "preco": 6.37}, {"data": "2026-06-08", "preco": 6.37}, {"data": "2026-06-17", "preco": 6.69}, {"data": "2026-06-23", "preco": 6.65}, {"data": "2026-06-30", "preco": 6.54}], "GASOLINA ADITIVADA": [{"data": "2026-01-14", "preco": 6.39}, {"data": "2026-01-27", "preco": 6.39}, {"data": "2026-02-04", "preco": 6.39}, {"data": "2026-02-09", "preco": 6.39}, {"data": "2026-02-16", "preco": 6.39}, {"data": "2026-02-24", "preco": 6.39}, {"data": "2026-03-03", "preco": 6.39}, {"data": "2026-03-12", "preco": 6.79}, {"data": "2026-03-17", "preco": 6.89}, {"data": "2026-04-07", "preco": 6.89}, {"data": "2026-04-20", "preco": 6.75}, {"data": "2026-04-28", "preco": 6.65}, {"data": "2026-05-05", "preco": 6.65}, {"data": "2026-05-12", "preco": 6.65}, {"data": "2026-05-20", "preco": 6.65}, {"data": "2026-05-26", "preco": 6.57}, {"data": "2026-06-01", "preco": 6.57}, {"data": "2026-06-08", "preco": 6.57}, {"data": "2026-06-17", "preco": 6.99}, {"data": "2026-06-23", "preco": 6.95}, {"data": "2026-06-30", "preco": 6.84}]}, "POSTO SATURNINO RANGEL MAURO LTDA": {"DIESEL S10": [{"data": "2026-01-14", "preco": 6.09}, {"data": "2026-03-03", "preco": 6.09}, {"data": "2026-04-28", "preco": 6.97}, {"data": "2026-05-05", "preco": 6.97}, {"data": "2026-05-18", "preco": 6.97}, {"data": "2026-06-08", "preco": 6.97}], "ETANOL": [{"data": "2026-01-14", "preco": 4.67}, {"data": "2026-03-03", "preco": 4.87}, {"data": "2026-04-28", "preco": 4.97}, {"data": "2026-05-05", "preco": 4.97}, {"data": "2026-05-18", "preco": 4.97}, {"data": "2026-06-08", "preco": 4.97}], "GASOLINA": [{"data": "2026-01-14", "preco": 6.29}, {"data": "2026-03-03", "preco": 6.09}, {"data": "2026-04-28", "preco": 6.46}, {"data": "2026-05-05", "preco": 6.46}, {"data": "2026-05-18", "preco": 6.46}, {"data": "2026-06-08", "preco": 6.39}], "GASOLINA ADITIVADA": [{"data": "2026-01-14", "preco": 6.59}, {"data": "2026-03-03", "preco": 6.39}, {"data": "2026-04-28", "preco": 6.76}, {"data": "2026-05-05", "preco": 6.76}, {"data": "2026-06-08", "preco": 6.69}]}, "POSTO RIO MARINHO COMERCIO DE DERIVADOS DE PETROLEO EIRELI - EPP": {"DIESEL": [{"data": "2026-01-19", "preco": 6.05}, {"data": "2026-01-27", "preco": 6.05}, {"data": "2026-02-05", "preco": 6.05}, {"data": "2026-02-20", "preco": 5.87}, {"data": "2026-02-25", "preco": 5.87}, {"data": "2026-03-02", "preco": 5.87}, {"data": "2026-03-17", "preco": 6.37}, {"data": "2026-03-25", "preco": 6.49}, {"data": "2026-04-01", "preco": 6.49}, {"data": "2026-04-08", "preco": 6.49}, {"data": "2026-05-27", "preco": 6.59}, {"data": "2026-06-23", "preco": 6.47}], "DIESEL S10": [{"data": "2026-01-19", "preco": 6.09}, {"data": "2026-01-27", "preco": 6.09}, {"data": "2026-02-05", "preco": 6.09}, {"data": "2026-02-20", "preco": 5.97}, {"data": "2026-02-25", "preco": 5.97}, {"data": "2026-03-02", "preco": 5.97}, {"data": "2026-03-17", "preco": 6.47}, {"data": "2026-03-25", "preco": 6.69}, {"data": "2026-04-01", "preco": 6.69}, {"data": "2026-04-08", "preco": 6.79}, {"data": "2026-05-27", "preco": 6.89}, {"data": "2026-06-23", "preco": 6.65}], "ETANOL": [{"data": "2026-01-19", "preco": 4.67}, {"data": "2026-01-27", "preco": 4.89}, {"data": "2026-02-05", "preco": 4.89}, {"data": "2026-02-20", "preco": 4.79}, {"data": "2026-02-25", "preco": 4.79}, {"data": "2026-03-02", "preco": 4.79}, {"data": "2026-03-17", "preco": 4.89}, {"data": "2026-03-25", "preco": 4.89}, {"data": "2026-04-01", "preco": 4.89}, {"data": "2026-04-08", "preco": 4.99}, {"data": "2026-05-27", "preco": 4.59}, {"data": "2026-06-23", "preco": 4.55}], "GASOLINA": [{"data": "2026-01-19", "preco": 6.17}, {"data": "2026-01-27", "preco": 6.15}, {"data": "2026-02-05", "preco": 6.15}, {"data": "2026-02-20", "preco": 6.08}, {"data": "2026-02-25", "preco": 6.08}, {"data": "2026-03-02", "preco": 6.08}, {"data": "2026-03-17", "preco": 6.69}, {"data": "2026-03-25", "preco": 6.39}, {"data": "2026-04-01", "preco": 6.39}, {"data": "2026-04-08", "preco": 6.39}, {"data": "2026-05-27", "preco": 6.37}, {"data": "2026-06-23", "preco": 6.49}], "GASOLINA ADITIVADA": [{"data": "2026-01-19", "preco": 6.49}, {"data": "2026-01-27", "preco": 6.45}, {"data": "2026-02-05", "preco": 6.45}, {"data": "2026-02-20", "preco": 6.39}, {"data": "2026-02-25", "preco": 6.39}, {"data": "2026-03-02", "preco": 6.39}, {"data": "2026-03-17", "preco": 6.99}, {"data": "2026-03-25", "preco": 6.69}, {"data": "2026-04-01", "preco": 6.69}, {"data": "2026-04-08", "preco": 6.69}, {"data": "2026-05-27", "preco": 6.67}, {"data": "2026-06-23", "preco": 6.79}]}, "POSTO CAPUABA LTDA": {"DIESEL": [{"data": "2026-01-19", "preco": 5.99}, {"data": "2026-02-17", "preco": 5.99}, {"data": "2026-03-02", "preco": 5.99}, {"data": "2026-03-09", "preco": 5.99}, {"data": "2026-03-23", "preco": 6.79}, {"data": "2026-03-30", "preco": 6.69}, {"data": "2026-04-13", "preco": 6.69}, {"data": "2026-04-20", "preco": 6.79}, {"data": "2026-05-04", "preco": 6.89}, {"data": "2026-05-11", "preco": 6.89}, {"data": "2026-05-18", "preco": 6.79}], "DIESEL S10": [{"data": "2026-01-19", "preco": 6.09}, {"data": "2026-02-17", "preco": 6.09}, {"data": "2026-03-02", "preco": 6.09}, {"data": "2026-03-09", "preco": 6.09}, {"data": "2026-03-23", "preco": 6.99}, {"data": "2026-03-30", "preco": 6.79}, {"data": "2026-04-13", "preco": 6.79}, {"data": "2026-04-20", "preco": 6.89}, {"data": "2026-05-04", "preco": 6.99}, {"data": "2026-05-18", "preco": 6.89}], "ETANOL": [{"data": "2026-01-19", "preco": 4.49}, {"data": "2026-02-17", "preco": 4.65}, {"data": "2026-03-02", "preco": 4.65}, {"data": "2026-03-09", "preco": 4.65}, {"data": "2026-03-23", "preco": 4.99}, {"data": "2026-03-30", "preco": 4.99}, {"data": "2026-04-13", "preco": 4.99}, {"data": "2026-04-20", "preco": 4.99}, {"data": "2026-05-04", "preco": 4.99}, {"data": "2026-05-11", "preco": 4.99}, {"data": "2026-05-18", "preco": 4.99}], "GASOLINA": [{"data": "2026-01-19", "preco": 6.29}, {"data": "2026-02-17", "preco": 6.09}, {"data": "2026-03-02", "preco": 6.09}, {"data": "2026-03-09", "preco": 6.09}, {"data": "2026-03-23", "preco": 6.59}, {"data": "2026-03-30", "preco": 6.59}, {"data": "2026-04-13", "preco": 6.49}, {"data": "2026-04-20", "preco": 6.49}, {"data": "2026-05-04", "preco": 6.49}, {"data": "2026-05-11", "preco": 6.49}, {"data": "2026-05-18", "preco": 6.49}], "GASOLINA ADITIVADA": [{"data": "2026-01-19", "preco": 6.59}, {"data": "2026-02-17", "preco": 6.39}, {"data": "2026-03-02", "preco": 6.39}, {"data": "2026-03-09", "preco": 6.39}, {"data": "2026-03-23", "preco": 6.89}, {"data": "2026-03-30", "preco": 6.89}, {"data": "2026-04-13", "preco": 6.79}, {"data": "2026-04-20", "preco": 6.79}, {"data": "2026-05-04", "preco": 6.79}, {"data": "2026-05-11", "preco": 6.79}, {"data": "2026-05-18", "preco": 6.79}]}, "RGM 2 COMERCIO DE PETROLEO LTDA": {"DIESEL S10": [{"data": "2026-01-19", "preco": 5.99}, {"data": "2026-03-31", "preco": 6.99}, {"data": "2026-04-20", "preco": 6.99}, {"data": "2026-05-13", "preco": 6.99}], "ETANOL": [{"data": "2026-01-19", "preco": 4.79}, {"data": "2026-03-31", "preco": 4.99}, {"data": "2026-04-20", "preco": 4.99}, {"data": "2026-05-13", "preco": 4.99}], "GASOLINA": [{"data": "2026-01-19", "preco": 6.29}, {"data": "2026-03-31", "preco": 6.45}, {"data": "2026-04-20", "preco": 6.45}, {"data": "2026-05-13", "preco": 6.45}], "GASOLINA ADITIVADA": [{"data": "2026-01-19", "preco": 6.49}, {"data": "2026-03-31", "preco": 6.89}, {"data": "2026-04-20", "preco": 6.75}, {"data": "2026-05-13", "preco": 6.75}]}, "FRED ROSALEM HELIODORO": {"DIESEL": [{"data": "2026-02-09", "preco": 5.92}, {"data": "2026-02-16", "preco": 5.92}, {"data": "2026-04-13", "preco": 6.79}], "DIESEL S10": [{"data": "2026-02-09", "preco": 5.98}, {"data": "2026-02-16", "preco": 5.98}, {"data": "2026-04-13", "preco": 6.98}], "ETANOL": [{"data": "2026-02-09", "preco": 4.88}, {"data": "2026-02-16", "preco": 4.88}, {"data": "2026-04-13", "preco": 4.98}], "GASOLINA": [{"data": "2026-02-09", "preco": 6.08}, {"data": "2026-02-16", "preco": 6.08}, {"data": "2026-04-13", "preco": 6.47}], "GASOLINA ADITIVADA": [{"data": "2026-02-09", "preco": 6.08}, {"data": "2026-02-16", "preco": 6.08}, {"data": "2026-04-13", "preco": 6.47}]}, "AUTO POSTO VILA VELHA LTDA": {"DIESEL S10": [{"data": "2026-02-10", "preco": 6.09}, {"data": "2026-03-03", "preco": 6.09}, {"data": "2026-05-12", "preco": 7.09}], "ETANOL": [{"data": "2026-02-10", "preco": 4.89}, {"data": "2026-03-03", "preco": 4.89}, {"data": "2026-05-12", "preco": 4.99}], "GASOLINA": [{"data": "2026-02-10", "preco": 6.08}, {"data": "2026-03-03", "preco": 6.08}, {"data": "2026-05-12", "preco": 6.43}], "GASOLINA ADITIVADA": [{"data": "2026-02-10", "preco": 6.28}, {"data": "2026-03-03", "preco": 6.28}, {"data": "2026-05-12", "preco": 6.65}]}, "COMERCIO DE COMBUSTIVEIS COQUEIRAL DE ITAPARICA LTDA": {"DIESEL S10": [{"data": "2026-02-18", "preco": 6.09}, {"data": "2026-03-03", "preco": 5.95}, {"data": "2026-03-30", "preco": 7.09}, {"data": "2026-04-15", "preco": 7.29}, {"data": "2026-04-28", "preco": 6.99}, {"data": "2026-05-04", "preco": 6.99}, {"data": "2026-05-18", "preco": 6.99}], "ETANOL": [{"data": "2026-02-18", "preco": 4.59}, {"data": "2026-03-03", "preco": 4.55}, {"data": "2026-03-30", "preco": 4.72}, {"data": "2026-04-15", "preco": 4.72}, {"data": "2026-04-28", "preco": 4.69}, {"data": "2026-05-04", "preco": 4.69}, {"data": "2026-05-18", "preco": 4.65}], "GASOLINA": [{"data": "2026-02-18", "preco": 6.17}, {"data": "2026-03-03", "preco": 6.07}, {"data": "2026-03-30", "preco": 6.57}, {"data": "2026-04-15", "preco": 6.45}, {"data": "2026-04-28", "preco": 6.42}, {"data": "2026-05-04", "preco": 6.42}, {"data": "2026-05-18", "preco": 6.42}], "GASOLINA ADITIVADA": [{"data": "2026-02-18", "preco": 6.17}, {"data": "2026-03-03", "preco": 6.07}, {"data": "2026-03-30", "preco": 6.57}, {"data": "2026-04-15", "preco": 6.45}, {"data": "2026-04-28", "preco": 6.45}, {"data": "2026-05-04", "preco": 6.45}, {"data": "2026-05-18", "preco": 6.45}]}, "ITAPARICA PETROLEO E COMERCIO LTDA": {"DIESEL": [{"data": "2026-06-09", "preco": 6.79}, {"data": "2026-06-16", "preco": 6.78}, {"data": "2026-06-22", "preco": 6.79}, {"data": "2026-06-29", "preco": 6.79}], "ETANOL": [{"data": "2026-06-09", "preco": 4.99}, {"data": "2026-06-16", "preco": 4.59}, {"data": "2026-06-22", "preco": 4.59}, {"data": "2026-06-29", "preco": 4.59}], "GASOLINA": [{"data": "2026-06-09", "preco": 6.34}, {"data": "2026-06-16", "preco": 6.32}, {"data": "2026-06-22", "preco": 6.69}, {"data": "2026-06-29", "preco": 6.56}], "GASOLINA ADITIVADA": [{"data": "2026-06-09", "preco": 6.74}, {"data": "2026-06-16", "preco": 6.72}, {"data": "2026-06-22", "preco": 7.09}, {"data": "2026-06-29", "preco": 6.96}]}};
+
+let graficoMedias = null;
+let graficoPosto = null;
 
 // navegação por abas
 const botoesAba = document.querySelectorAll('.abas button');
 const paineis = document.querySelectorAll('.painel');
-let graficosRenderizados = { medias: false, posto: false };
 
 botoesAba.forEach(btn => {
   btn.addEventListener('click', () => {
-    botoesAba.forEach(b => b.classList.remove('ativa'));
+    botoesAba.forEach(b => {
+      b.classList.remove('ativa');
+      b.setAttribute('aria-selected', 'false');
+    });
     paineis.forEach(p => p.classList.remove('ativa'));
     btn.classList.add('ativa');
+    btn.setAttribute('aria-selected', 'true');
     document.getElementById(btn.dataset.painel).classList.add('ativa');
 
-    if (btn.dataset.painel === 'painelMedias' && !graficosRenderizados.medias) {
+    // o canvas só tem tamanho depois que o painel aparece,
+    // por isso o gráfico é criado na primeira vez que a aba abre
+    if (btn.dataset.painel === 'painelMedias' && !graficoMedias) {
       renderGraficoMedias();
-      graficosRenderizados.medias = true;
     }
-    if (btn.dataset.painel === 'painelPosto' && !graficosRenderizados.posto) {
+    if (btn.dataset.painel === 'painelPosto' && !graficoPosto) {
       renderGraficoPosto();
-      graficosRenderizados.posto = true;
     }
   });
 });
+
+
+function isoParaBr(iso) {
+  const [ano, mes, dia] = iso.split('-');
+  return dia + '/' + mes + '/' + ano;
+}
+
+function formatarPreco(valor) {
+  return 'R$ ' + valor.toFixed(2).replace('.', ',');
+}
+
+// tira acento e deixa minúsculo, para a busca achar "espirito" em "ESPÍRITO"
+function normalizarTexto(texto) {
+  return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function derivarPostosData(historico, enderecos) {
+  return Object.keys(historico).sort().map(nome => {
+    const produtos = historico[nome];
+    const combustiveis = Object.keys(produtos).map(produto => {
+      const lista = produtos[produto];
+      const ultimo = lista.reduce((a, b) => (a.data > b.data ? a : b));
+      return { produto, preco: ultimo.preco, data: ultimo.data };
+    });
+    const endereco = enderecos[nome] || {};
+    return {
+      nome,
+      municipio: endereco.municipio || '',
+      rua: endereco.rua || '',
+      numero: endereco.numero || '',
+      bairro: endereco.bairro || '',
+      combustiveis
+    };
+  });
+}
+
+// média por combustível e data; n é a quantidade de postos que entrou na média
+function derivarMedias(historico) {
+  const somas = {};
+
+  Object.values(historico).forEach(produtos => {
+    Object.entries(produtos).forEach(([produto, lista]) => {
+      somas[produto] = somas[produto] || {};
+      lista.forEach(item => {
+        const acumulado = somas[produto][item.data] || { soma: 0, n: 0 };
+        acumulado.soma += item.preco;
+        acumulado.n += 1;
+        somas[produto][item.data] = acumulado;
+      });
+    });
+  });
+
+  const resultado = {};
+  Object.entries(somas).forEach(([produto, porData]) => {
+    resultado[produto] = Object.entries(porData)
+      .map(([data, { soma, n }]) => ({
+        data,
+        n,
+        preco: Math.round((soma / n) * 10000) / 10000
+      }))
+      .sort((a, b) => a.data.localeCompare(b.data));
+  });
+
+  return resultado;
+}
+
+const POSTOS_DATA = derivarPostosData(HISTORICO_POSTOS, POSTOS_ENDERECOS);
+const MEDIAS_COMBUSTIVEL = derivarMedias(HISTORICO_POSTOS);
+
+
+// tabela
+function criarCelula(texto, classe) {
+  const td = document.createElement('td');
+  if (classe) td.className = classe;
+  td.textContent = texto;
+  return td;
+}
 
 const corpo = document.getElementById('corpo');
 const busca = document.getElementById('busca');
@@ -256,21 +191,28 @@ const filtroCombustivel = document.getElementById('filtroCombustivel');
 const contagem = document.getElementById('contagem');
 const cabecalhos = document.querySelectorAll('thead th[data-campo]');
 
-function nomeProduto(produto) {
-  return produto.charAt(0) + produto.slice(1).toLowerCase();
-}
+const NOMES_PRODUTO = {
+  'GASOLINA': 'Gasolina',
+  'GASOLINA ADITIVADA': 'Gasolina aditivada',
+  'ETANOL': 'Etanol',
+  'DIESEL': 'Diesel comum',
+  'DIESEL S10': 'Diesel S10',
+  'GNV': 'GNV'
+};
 
-function dataParaOrdenar(data) {
-  const partes = data.split('/');
-  return partes[2] + '-' + partes[1] + '-' + partes[0];
+function nomeProduto(produto) {
+  return NOMES_PRODUTO[produto] ||
+    (produto.charAt(0) + produto.slice(1).toLowerCase());
 }
 
 const registros = [];
 
 POSTOS_DATA.forEach(posto => {
+  const semNumero = valor => !valor || /^s\/?n$/i.test(valor.trim());
   const endereco = [posto.rua, posto.numero]
-    .filter(v => v && v !== 'S/N')
+    .filter(v => !semNumero(v))
     .join(', ') + ' — ' + posto.bairro + ', ' + posto.municipio;
+  const textoBusca = normalizarTexto(posto.nome + ' ' + endereco);
 
   posto.combustiveis.forEach(combustivel => {
     registros.push({
@@ -280,7 +222,7 @@ POSTOS_DATA.forEach(posto => {
       produto: combustivel.produto,
       preco: combustivel.preco,
       data: combustivel.data,
-      dataOrd: dataParaOrdenar(combustivel.data)
+      textoBusca: textoBusca
     });
   });
 });
@@ -288,15 +230,7 @@ POSTOS_DATA.forEach(posto => {
 let ordem = 'posto';
 let direcao = 1;
 
-const combustiveis = [];
-
-registros.forEach(registro => {
-  if (!combustiveis.includes(registro.produto)) {
-    combustiveis.push(registro.produto);
-  }
-});
-
-combustiveis.sort();
+const combustiveis = [...new Set(registros.map(r => r.produto))].sort();
 
 combustiveis.forEach(produto => {
   const opcao = document.createElement('option');
@@ -320,15 +254,13 @@ function atualizarSetas() {
 }
 
 function atualizarTabela() {
-  const termo = busca.value.trim().toLowerCase();
+  const termo = normalizarTexto(busca.value.trim());
   const combustivelEscolhido = filtroCombustivel.value;
 
-  let filtrados = registros.filter(registro => {
-    const texto = (registro.posto + ' ' + registro.endereco).toLowerCase();
-
-    return texto.includes(termo) &&
-      (!combustivelEscolhido || registro.produto === combustivelEscolhido);
-  });
+  const filtrados = registros.filter(registro =>
+    registro.textoBusca.includes(termo) &&
+    (!combustivelEscolhido || registro.produto === combustivelEscolhido)
+  );
 
   // quando ordenar por preço, separa os combustíveis
   const separarCombustiveis =
@@ -355,8 +287,12 @@ function atualizarTabela() {
     filtrados.length + ' de ' + registros.length + ' registros';
 
   if (filtrados.length === 0) {
-    corpo.innerHTML =
-      '<tr><td colspan="5" class="sem-resultado">Nenhum resultado encontrado.</td></tr>';
+    corpo.innerHTML = '';
+    const tr = document.createElement('tr');
+    const td = criarCelula('Nenhum resultado encontrado.', 'sem-resultado');
+    td.colSpan = 5;
+    tr.appendChild(td);
+    corpo.appendChild(tr);
     return;
   }
 
@@ -367,7 +303,7 @@ function atualizarTabela() {
       (totalPorProduto[registro.produto] || 0) + 1;
   });
 
-  let html = '';
+  const fragmento = document.createDocumentFragment();
   let grupoAtual = '';
 
   filtrados.forEach(registro => {
@@ -377,26 +313,33 @@ function atualizarTabela() {
       const quantidade = totalPorProduto[grupoAtual];
       const nome = nomeProduto(grupoAtual);
 
-      html += '<tr class="grupo-cabecalho">' +
-        '<td colspan="5">' + nome +
-        '<span class="qtd">' + quantidade +
-        ' posto' + (quantidade > 1 ? 's' : '') +
-        '</span></td></tr>';
+      const trGrupo = document.createElement('tr');
+      trGrupo.className = 'grupo-cabecalho';
+
+      const tdGrupo = document.createElement('td');
+      tdGrupo.colSpan = 5;
+      tdGrupo.textContent = nome;
+
+      const spanQtd = document.createElement('span');
+      spanQtd.className = 'qtd';
+      spanQtd.textContent = quantidade + ' posto' + (quantidade > 1 ? 's' : '');
+      tdGrupo.appendChild(spanQtd);
+
+      trGrupo.appendChild(tdGrupo);
+      fragmento.appendChild(trGrupo);
     }
 
-    const nomeCombustivel = nomeProduto(registro.produto);
-
-    html += '<tr>' +
-      '<td>' + registro.posto + '</td>' +
-      '<td>' + registro.endereco + '</td>' +
-      '<td>' + nomeCombustivel + '</td>' +
-      '<td class="col-preco preco">R$ ' +
-        registro.preco.toFixed(2).replace('.', ',') + '</td>' +
-      '<td class="data">' + registro.data + '</td>' +
-      '</tr>';
+    const tr = document.createElement('tr');
+    tr.appendChild(criarCelula(registro.posto));
+    tr.appendChild(criarCelula(registro.endereco));
+    tr.appendChild(criarCelula(nomeProduto(registro.produto)));
+    tr.appendChild(criarCelula(formatarPreco(registro.preco), 'col-preco preco'));
+    tr.appendChild(criarCelula(isoParaBr(registro.data), 'data'));
+    fragmento.appendChild(tr);
   });
 
-  corpo.innerHTML = html;
+  corpo.innerHTML = '';
+  corpo.appendChild(fragmento);
 }
 
 cabecalhos.forEach(th => {
@@ -419,6 +362,8 @@ filtroCombustivel.addEventListener('change', atualizarTabela);
 
 atualizarTabela();
 
+
+// gráficos
 const CORES_COMBUSTIVEL = {
   'GASOLINA': '#2f6f97',
   'GASOLINA ADITIVADA': '#c78a2e',
@@ -427,7 +372,6 @@ const CORES_COMBUSTIVEL = {
   'DIESEL S10': '#4f8f89',
   'GNV': '#7a6a52'
 };
-
 
 function montarDadosDoGrafico(dadosPorProduto) {
   const produtos = Object.keys(dadosPorProduto).sort();
@@ -439,14 +383,16 @@ function montarDadosDoGrafico(dadosPorProduto) {
   const labels = [...todasAsDatas].sort();
 
   const datasets = produtos.map(produto => {
-    const precoPorData = {};
+    const itemPorData = {};
     dadosPorProduto[produto].forEach(item => {
-      precoPorData[item.data] = item.preco;
+      itemPorData[item.data] = item;
     });
 
     return {
       label: nomeProduto(produto),
-      data: labels.map(data => precoPorData[data] ?? null),
+      data: labels.map(data => itemPorData[data]?.preco ?? null),
+      // só existe no gráfico de médias, usado no tooltip
+      postos: labels.map(data => itemPorData[data]?.n),
       borderColor: CORES_COMBUSTIVEL[produto] || '#888',
       backgroundColor: CORES_COMBUSTIVEL[produto] || '#888',
       spanGaps: true,
@@ -459,7 +405,7 @@ function montarDadosDoGrafico(dadosPorProduto) {
 }
 
 function formatarEixoX(dataIso) {
-  const [ano, mes, dia] = dataIso.split('-');
+  const [, mes, dia] = dataIso.split('-');
   return dia + '/' + mes;
 }
 
@@ -480,7 +426,7 @@ const configGrafico = {
     },
     y: {
       ticks: {
-        callback: valor => 'R$ ' + valor.toFixed(2).replace('.', ',')
+        callback: valor => formatarPreco(valor)
       },
       grid: { color: '#eee' }
     }
@@ -493,27 +439,51 @@ const configGrafico = {
     tooltip: {
       callbacks: {
         label: contexto =>
-          contexto.dataset.label + ': R$ ' +
-          contexto.parsed.y.toFixed(2).replace('.', ',')
+          contexto.dataset.label + ': ' + formatarPreco(contexto.parsed.y)
       }
     }
   }
 };
 
-// gráfico de média por combustível
-let graficoMedias = null;
-
-function renderGraficoMedias() {
-  const { labels, datasets } = montarDadosDoGrafico(MEDIAS_COMBUSTIVEL);
-
-  if (graficoMedias) {
-    graficoMedias.destroy();
+const configMedias = {
+  ...configGrafico,
+  plugins: {
+    ...configGrafico.plugins,
+    tooltip: {
+      callbacks: {
+        label: contexto => {
+          const n = contexto.dataset.postos[contexto.dataIndex];
+          return contexto.dataset.label + ': ' + formatarPreco(contexto.parsed.y) +
+            (n ? ' (média de ' + n + ' posto' + (n > 1 ? 's' : '') + ')' : '');
+        }
+      }
+    }
   }
+};
+
+function avisarSemChart(idPainel) {
+  const painel = document.getElementById(idPainel);
+  if (painel.querySelector('.aviso-chart')) return;
+
+  painel.insertAdjacentHTML(
+    'beforeend',
+    '<p class="nota aviso-chart">Não foi possível carregar a biblioteca de gráficos (Chart.js). Verifique sua conexão e recarregue a página.</p>'
+  );
+}
+
+// gráfico de média por combustível
+function renderGraficoMedias() {
+  if (typeof Chart === 'undefined') {
+    avisarSemChart('painelMedias');
+    return;
+  }
+
+  const { labels, datasets } = montarDadosDoGrafico(MEDIAS_COMBUSTIVEL);
 
   graficoMedias = new Chart(document.getElementById('graficoMedias'), {
     type: 'line',
     data: { labels, datasets },
-    options: configGrafico
+    options: configMedias
   });
 }
 
@@ -532,9 +502,12 @@ if (postosOrdenados.length > 0) {
   seletorPosto.value = postosOrdenados[0];
 }
 
-let graficoPosto = null;
-
 function renderGraficoPosto() {
+  if (typeof Chart === 'undefined') {
+    avisarSemChart('painelPosto');
+    return;
+  }
+
   const posto = seletorPosto.value;
   const dadosPosto = HISTORICO_POSTOS[posto] || {};
   const { labels, datasets } = montarDadosDoGrafico(dadosPosto);
@@ -552,6 +525,26 @@ function renderGraficoPosto() {
 
 seletorPosto.addEventListener('change', renderGraficoPosto);
 
+
+// textos dinâmicos: quantidade de postos e período das coletas
+const todasAsColetas = [...new Set(
+  Object.values(MEDIAS_COMBUSTIVEL).flatMap(lista => lista.map(item => item.data))
+)].sort();
+
+document.getElementById('dicaPostos').textContent =
+  POSTOS_DATA.length + ' postos analisados até o momento.';
+
+if (todasAsColetas.length > 0) {
+  const primeiraColeta = isoParaBr(todasAsColetas[0]);
+  const ultimaColeta = isoParaBr(todasAsColetas[todasAsColetas.length - 1]);
+
+  document.getElementById('periodo').textContent =
+    'Vila Velha/ES — coletas de ' + primeiraColeta + ' a ' + ultimaColeta;
+  document.getElementById('rodapeDados').textContent =
+    'Preços coletados em ' + POSTOS_DATA.length +
+    ' postos de combustíveis de Vila Velha/ES entre ' + primeiraColeta +
+    ' e ' + ultimaColeta + '. Última coleta: ' + ultimaColeta + '.';
+}
 </script>
 
 </body>

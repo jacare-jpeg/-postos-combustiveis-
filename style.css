@@ -1,0 +1,191 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  color: #222;
+  background: #fff;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+h1 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.subtitulo {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0 0 20px;
+}
+.controles {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.controles input, .controles select {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+.controles input {
+  flex: 1;
+}
+.dica {
+  color: #999;
+  font-size: 0.75rem;
+  margin: 0 0 10px;
+}
+.contagem {
+  color: #666;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead th {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 2px solid #222;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #444;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+thead th:hover {
+  color: #000;
+}
+thead th .seta {
+  color: #999;
+  font-size: 0.75em;
+  margin-left: 3px;
+}
+thead th.ativo .seta {
+  color: #222;
+}
+tbody td {
+  padding: 7px 8px;
+  border-bottom: 1px solid #e0e0e0;
+  vertical-align: top;
+}
+tbody tr:hover {
+  background: #f7f7f7;
+}
+.preco {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.data {
+  color: #888;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.rotulo-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.sem-resultado {
+  text-align: center;
+  color: #888;
+  padding: 24px 0;
+}
+.grupo-cabecalho td {
+  background: #f0f0f0;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #333;
+  padding: 6px 8px;
+  border-bottom: 1px solid #ddd;
+  border-top: 1px solid #ddd;
+}
+.grupo-cabecalho .qtd {
+  font-weight: 400;
+  text-transform: none;
+  color: #888;
+  letter-spacing: normal;
+  margin-left: 6px;
+}
+th.col-preco, td.col-preco { text-align: right; }
+
+.grafico-wrap {
+  border: 1px solid #e0e0e0;
+  padding: 16px;
+  height: 320px;
+}
+.grafico-wrap canvas {
+  max-height: 100%;
+}
+
+.abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 18px;
+}
+.abas button {
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: none;
+  border: none;
+  padding: 10px 4px;
+  margin-right: 20px;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.abas button:hover {
+  color: #333;
+}
+.abas button.ativa {
+  color: #111;
+  font-weight: 600;
+  border-bottom-color: #111;
+}
+.painel {
+  display: none;
+}
+.painel.ativa {
+  display: block;
+}
+.rodape {
+  margin-top: 32px;
+  padding-top: 14px;
+  border-top: 1px solid #e0e0e0;
+  color: #666;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.rodape p { margin: 0 0 6px; }
+.nota {
+  color: #666;
+  font-size: 0.8rem;
+  margin: 10px 0 0;
+  line-height: 1.5;
+}
+@media (max-width: 700px) {
+  body { padding: 14px; }
+  .controles { flex-direction: column; }
+  .abas button { margin-right: 12px; padding: 8px 2px; }
+  .grafico-wrap { padding: 8px; height: 300px; }
+  .tabela-wrap { overflow-x: auto; }
+  .tabela-wrap table { min-width: 640px; }
+}
